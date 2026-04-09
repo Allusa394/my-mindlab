@@ -1,0 +1,2810 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindLab — интеграция знаний в мышление</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0E0E10;
+      --surface:    #161618;
+      --surface-2:  #1C1C1F;
+      --border:     #2A2A2E;
+      --border-2:   #222226;
+      --accent:     #5B5BD6;
+      --text:       #EDEDEF;
+      --text-2:     #8B8B9A;
+      --text-3:     #55555F;
+
+      --c-meaning:     #5B5BD6;
+      --c-connection:  #10B981;
+      --c-insight:     #F59E0B;
+      --c-anchor:      #EF4444;
+      --c-integration: #8B5CF6;
+      --c-neuro:       #06B6D4;
+
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 15% 15%, rgba(91,91,214,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 85%, rgba(6,182,212,.05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── App shell ─── */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px 100px;
+    }
+
+    @media (min-width: 900px) {
+      .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        align-items: start;
+      }
+      .main-left { position: sticky; top: 28px; }
+    }
+
+    /* ─── Header ─── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 0 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 26px;
+      color: var(--text);
+      letter-spacing: -.035em;
+      user-select: none;
+    }
+
+    .logo-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(91,91,214,.9);
+      animation: glow-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes glow-pulse {
+      0%,100% { opacity:1; transform:scale(1);   box-shadow: 0 0 10px rgba(91,91,214,.9); }
+      50%      { opacity:.5; transform:scale(.75); box-shadow: 0 0 4px  rgba(91,91,214,.4); }
+    }
+
+    .logo-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-3);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-left: 2px;
+      align-self: flex-end;
+      margin-bottom: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notes-badge {
+      font-size: 12px;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      white-space: nowrap;
+    }
+
+    .notes-badge strong { color: var(--accent); font-weight: 600; }
+
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 7px 13px;
+      cursor: pointer;
+      transition: all 180ms var(--ease);
+      white-space: nowrap;
+    }
+
+    .btn-icon:hover { color: var(--text); border-color: rgba(91,91,214,.4); }
+    .btn-icon.active {
+      background: rgba(91,91,214,.12);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ─── Input panel ─── */
+    .input-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 28px 24px;
+      margin-bottom: 20px;
+      transition: border-color 200ms var(--ease), box-shadow 200ms var(--ease);
+    }
+
+    .input-panel:focus-within {
+      border-color: rgba(91,91,214,.35);
+      box-shadow: 0 0 0 1px rgba(91,91,214,.08), 0 4px 20px rgba(0,0,0,.3);
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 12px 15px;
+      width: 100%;
+      outline: none;
+      transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+    }
+
+    input[type="text"]::placeholder,
+    textarea::placeholder { color: var(--text-3); }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: rgba(91,91,214,.5);
+      box-shadow: 0 0 0 3px rgba(91,91,214,.08);
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2355555F' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 34px;
+    }
+
+    select option { background: #1C1C1F; }
+
+    .textarea-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .textarea-header .field-label { margin-bottom: 0; }
+
+    .btn-mic {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 20px;
+      color: var(--text-2);
+      font-size: 13px;
+      padding: 6px 14px;
+      cursor: pointer;
+      transition: all 150ms var(--ease);
+    }
+    .btn-mic:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-mic.recording {
+      background: rgba(220,50,50,.12);
+      border-color: #dc3232;
+      color: #dc3232;
+      animation: pulse-mic 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse-mic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220,50,50,.3); }
+      50% { box-shadow: 0 0 0 6px rgba(220,50,50,0); }
+    }
+
+    .mic-status {
+      font-size: 12px;
+      color: var(--text-3);
+      min-height: 18px;
+      margin-top: -14px;
+      margin-bottom: 14px;
+    }
+    .mic-status.active { color: #dc3232; }
+
+    textarea {
+      min-height: 150px;
+      resize: none;
+      overflow: hidden;
+      line-height: 1.7;
+      margin-bottom: 6px;
+    }
+
+    .btn-analyze {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 15px;
+      cursor: pointer;
+      transition: background 180ms var(--ease), transform 150ms var(--ease), box-shadow 180ms var(--ease);
+      letter-spacing: .01em;
+    }
+
+    .btn-analyze:hover:not(:disabled) {
+      background: #6B6BE6;
+      box-shadow: 0 0 24px rgba(91,91,214,.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-analyze:active:not(:disabled) { transform: translateY(0); }
+    .btn-analyze:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* ─── Loading ─── */
+    .loading {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 0 4px;
+      color: var(--text-2);
+      font-size: 13px;
+    }
+
+    .loading.show { display: flex; }
+
+    .dots { display: flex; gap: 4px; }
+    .dots span {
+      width: 5px; height: 5px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: dot 1.3s ease-in-out infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: .18s; }
+    .dots span:nth-child(3) { animation-delay: .36s; }
+
+    @keyframes dot {
+      0%,80%,100% { transform: scale(.55); opacity: .35; }
+      40%          { transform: scale(1);   opacity: 1;   }
+    }
+
+    /* ─── Results ─── */
+    .results { display: none; }
+    .results.show { display: block; }
+
+    .results-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .results-meta { font-size: 12px; color: var(--text-3); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: all 150ms var(--ease);
+    }
+
+    .btn-ghost:hover { color: var(--text); border-color: var(--text-3); }
+
+    /* ─── Block cards ─── */
+    .block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 280ms var(--ease), transform 280ms var(--ease), border-color 180ms var(--ease);
+    }
+
+    .block:hover { border-color: rgba(255,255,255,.07); }
+    .block.in { opacity: 1; transform: translateY(0); }
+
+    .block::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+
+    .block[data-b="meaning"]::before     { background: var(--c-meaning); }
+    .block[data-b="connection"]::before  { background: var(--c-connection); }
+    .block[data-b="insight"]::before     { background: var(--c-insight); }
+    .block[data-b="anchor"]::before      { background: var(--c-anchor); }
+    .block[data-b="integration"]::before { background: var(--c-integration); }
+    .block[data-b="neuro"]::before       { background: var(--c-neuro); }
+
+    .block-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+    }
+
+    .block-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+    }
+
+    .block[data-b="meaning"]     .block-label { color: var(--c-meaning); }
+    .block[data-b="connection"]  .block-label { color: var(--c-connection); }
+    .block[data-b="insight"]     .block-label { color: var(--c-insight); }
+    .block[data-b="anchor"]      .block-label { color: var(--c-anchor); }
+    .block[data-b="integration"] .block-label { color: var(--c-integration); }
+    .block[data-b="neuro"]       .block-label { color: var(--c-neuro); }
+
+    .btn-copy {
+      background: transparent;
+      border: none;
+      color: var(--text-3);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 140ms var(--ease);
+    }
+
+    .btn-copy:hover { color: var(--text-2); background: var(--surface-2); }
+    .btn-copy.copied { color: var(--c-connection); }
+
+    .block-text {
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.72;
+    }
+
+    .block[data-b="anchor"] .block-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 13.5px;
+      color: #F07070;
+      letter-spacing: -.01em;
+      line-height: 1.6;
+    }
+
+    /* ─── Block edit mode ─── */
+    .btn-edit-block {
+      background: transparent;
+      border: none;
+      color: var(--text-3);
+      padding: 2px 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      transition: all 140ms var(--ease);
+      margin-right: 2px;
+    }
+    .btn-edit-block:hover { color: var(--text-2); background: var(--surface-2); }
+
+    .block-edit-area { display: none; }
+    .block.editing .block-text { display: none; }
+    .block.editing .block-edit-area { display: block; }
+    .block.editing .btn-copy { display: none; }
+    .block.editing .btn-edit-block { color: var(--accent); }
+
+    .block-edit-area textarea {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.68;
+      padding: 10px 12px;
+      resize: vertical;
+      min-height: 80px;
+      outline: none;
+      transition: border-color 150ms var(--ease);
+    }
+    .block[data-b="anchor"] .block-edit-area textarea {
+      font-family: 'DM Mono', monospace;
+      font-size: 13.5px;
+    }
+    .block-edit-area textarea:focus { border-color: var(--accent); }
+
+    .block-edit-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+    .btn-save-block {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 140ms var(--ease);
+    }
+    .btn-save-block:hover { opacity: .85; }
+    .btn-cancel-block {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 140ms var(--ease);
+    }
+    .btn-cancel-block:hover { color: var(--text); border-color: var(--text-3); }
+
+    /* ─── Library ─── */
+    .library {
+      display: none;
+      margin-top: 52px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .library.show { display: block; }
+
+    .lib-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .lib-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.02em;
+    }
+
+    /* Sphere pills */
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .pill {
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 140ms var(--ease);
+    }
+
+    .pill:hover { border-color: var(--text-3); color: var(--text); }
+
+    .pill.on {
+      background: rgba(91,91,214,.14);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Empty */
+    .empty {
+      text-align: center;
+      padding: 56px 20px;
+      color: var(--text-3);
+    }
+
+    .empty-sym {
+      font-size: 32px;
+      margin-bottom: 12px;
+      opacity: .45;
+    }
+
+    .empty p { font-size: 14px; }
+
+    /* Note card */
+    .note-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+      overflow: hidden;
+      transition: border-color 160ms var(--ease);
+    }
+
+    .note-card:hover { border-color: rgba(255,255,255,.08); }
+
+    .note-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 15px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .note-info { flex: 1; min-width: 0; }
+
+    .note-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+    }
+
+    .note-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .note-date { font-size: 11px; color: var(--text-3); }
+
+    .note-sphere {
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 10px;
+      background: rgba(91,91,214,.12);
+      color: var(--accent);
+    }
+
+    .note-anchor {
+      font-size: 12px;
+      color: var(--text-3);
+      font-style: italic;
+      margin-top: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .note-actions { flex-shrink: 0; display: flex; gap: 2px; }
+
+    .btn-del {
+      background: transparent;
+      border: none;
+      color: var(--text-3);
+      padding: 4px 7px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 140ms var(--ease);
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-del:hover { color: #EF4444; background: rgba(239,68,68,.1); }
+
+    .note-body {
+      display: none;
+      padding: 0 18px 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .note-body.open {
+      display: block;
+      padding-top: 14px;
+    }
+
+    .nb {
+      margin-bottom: 10px;
+    }
+
+    .nb-label {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text-3);
+      margin-bottom: 3px;
+    }
+
+    .nb-text {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    /* ─── Topic folders ─── */
+    .topic-folder {
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .topic-folder-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 18px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 140ms var(--ease);
+    }
+    .topic-folder-head:hover { background: rgba(255,255,255,.03); }
+
+    .topic-folder-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .topic-folder-count {
+      font-size: 11px;
+      color: var(--text-3);
+      background: rgba(91,91,214,.1);
+      border-radius: 10px;
+      padding: 2px 9px;
+    }
+
+    .topic-folder-chevron {
+      color: var(--text-3);
+      transition: transform 200ms var(--ease);
+      flex-shrink: 0;
+    }
+    .topic-folder.open .topic-folder-chevron { transform: rotate(90deg); }
+
+    .topic-folder-body {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+    .topic-folder.open .topic-folder-body { display: block; }
+
+    /* note inside folder */
+    .folder-note {
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .folder-note:last-child { border-bottom: none; }
+
+    .folder-note-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 18px 11px 26px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .folder-note-head:hover { background: rgba(255,255,255,.02); }
+
+    .folder-note-info { flex: 1; min-width: 0; }
+
+    .folder-note-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .folder-note-anchor {
+      font-size: 12px;
+      color: var(--text-2);
+      font-style: italic;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .folder-note-body {
+      display: none;
+      padding: 0 18px 12px 26px;
+      border-top: 1px solid var(--border);
+    }
+    .folder-note-body.open {
+      display: block;
+      padding-top: 12px;
+    }
+
+    /* ─── Toast ─── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 13px;
+      padding: 10px 16px;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+      pointer-events: none;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ─── Quick mode ─── */
+    .quick-hint {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 14px;
+      display: none;
+    }
+    .quick-hint.show { display: block; }
+
+    .input-panel.quick-mode .row-2 {
+      display: none;
+    }
+
+    .input-panel.quick-mode textarea {
+      min-height: 180px;
+      font-size: 16px;
+    }
+
+    .btn-quick {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 7px 13px;
+      cursor: pointer;
+      transition: all 180ms var(--ease);
+      white-space: nowrap;
+    }
+    .btn-quick:hover { color: var(--text); border-color: rgba(91,91,214,.4); }
+    .btn-quick.active {
+      background: rgba(239,180,0,.1);
+      border-color: rgba(239,180,0,.5);
+      color: #F5B800;
+    }
+
+    /* ─── Theses section ─── */
+    .theses {
+      display: none;
+      margin-top: 52px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .theses.show { display: block; }
+
+    .theses-subhead {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .thesis-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+      transition: border-color 200ms var(--ease);
+    }
+    .thesis-form:focus-within { border-color: rgba(91,91,214,.35); }
+    .thesis-form-textarea {
+      width: 100%;
+      min-height: 80px;
+      resize: none;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 12px 15px;
+      outline: none;
+      transition: border-color 180ms var(--ease);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .thesis-form-textarea:focus { border-color: rgba(91,91,214,.5); }
+    .thesis-form-textarea::placeholder { color: var(--text-3); }
+    .thesis-form-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .thesis-form-row select { width: auto; flex: 1; min-width: 130px; }
+    .btn-add-thesis {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: background 180ms var(--ease), box-shadow 180ms var(--ease);
+      white-space: nowrap;
+    }
+    .btn-add-thesis:hover { background: #6B6BE6; box-shadow: 0 0 16px rgba(91,91,214,.3); }
+
+    .thesis-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .thesis-tab {
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      padding: 4px 13px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all 140ms var(--ease);
+    }
+    .thesis-tab:hover { border-color: var(--text-3); color: var(--text); }
+    .thesis-tab.on {
+      background: rgba(91,91,214,.14);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .thesis-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      position: relative;
+      transition: border-color 160ms var(--ease);
+    }
+    .thesis-card:hover { border-color: rgba(255,255,255,.07); }
+    .thesis-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+    .thesis-card[data-status="new"]::before        { background: var(--text-3); }
+    .thesis-card[data-status="understood"]::before { background: var(--accent); }
+    .thesis-card[data-status="lived"]::before      { background: #10B981; }
+
+    .thesis-card-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .thesis-card-head:hover { background: rgba(255,255,255,.02); }
+
+    .thesis-status-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+    .thesis-card-info { flex: 1; min-width: 0; }
+    .thesis-card-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 7px;
+    }
+    .thesis-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .thesis-date { font-size: 11px; color: var(--text-3); }
+    .thesis-sphere-badge {
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 9px;
+      border-radius: 10px;
+      background: rgba(91,91,214,.12);
+      color: var(--accent);
+    }
+    .thesis-status-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .thesis-status-badge.new         { background: rgba(85,85,96,.2);   color: var(--text-3); }
+    .thesis-status-badge.understood  { background: rgba(91,91,214,.15); color: var(--accent); }
+    .thesis-status-badge.lived       { background: rgba(16,185,129,.15); color: #10B981; }
+
+    /* Timeline */
+    .thesis-timeline {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      margin-bottom: 4px;
+    }
+    .tl-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .tl-dot.done         { background: var(--accent);  border-color: var(--accent); }
+    .tl-dot.final.done   { background: #10B981;        border-color: #10B981; }
+    .tl-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+    }
+    .tl-line.done { background: var(--accent); }
+    .tl-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 14px;
+      margin-bottom: 14px;
+    }
+    .tl-label {
+      font-size: 10px;
+      color: var(--text-3);
+      flex: 1;
+      text-align: center;
+    }
+    .tl-label:first-child { text-align: left; }
+    .tl-label:last-child  { text-align: right; }
+    .tl-label.done { color: var(--text-2); }
+
+    /* Thesis body */
+    .thesis-body {
+      display: none;
+      padding: 0 18px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .thesis-body.open { display: block; padding-top: 16px; }
+
+    .thesis-step-form {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .thesis-step-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    .thesis-step-textarea {
+      width: 100%;
+      min-height: 68px;
+      resize: none;
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 150ms var(--ease);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .thesis-step-textarea:focus { border-color: rgba(91,91,214,.5); }
+    .thesis-step-textarea::placeholder { color: var(--text-3); }
+    .thesis-step-confirm { display: flex; justify-content: flex-end; gap: 6px; }
+
+    .thesis-techniques {
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .thesis-techniques-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+    .thesis-technique {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+    .thesis-technique:last-child { margin-bottom: 0; }
+    .thesis-tech-icon { flex-shrink: 0; }
+
+    .btn-thesis-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 160ms var(--ease);
+      border: 1px solid;
+    }
+    .btn-understand {
+      background: rgba(91,91,214,.1);
+      border-color: rgba(91,91,214,.3);
+      color: var(--accent);
+    }
+    .btn-understand:hover { background: rgba(91,91,214,.2); border-color: var(--accent); }
+    .btn-lived {
+      background: rgba(16,185,129,.1);
+      border-color: rgba(16,185,129,.3);
+      color: #10B981;
+    }
+    .btn-lived:hover { background: rgba(16,185,129,.2); border-color: #10B981; }
+    .btn-thesis-del {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-3);
+    }
+    .btn-thesis-del:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: #EF4444; }
+
+    .thesis-note-block {
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+    .thesis-note-block-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 5px;
+    }
+
+    .reminder-banner {
+      background: rgba(91,91,214,.1);
+      border: 1px solid rgba(91,91,214,.22);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .reminder-banner-text { flex: 1; }
+    .reminder-banner-dismiss {
+      background: transparent;
+      border: none;
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 140ms var(--ease);
+    }
+    .reminder-banner-dismiss:hover { color: var(--text); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 899px) {
+      .main-layout { display: block; }
+      .main-left { position: static; }
+    }
+
+    @media (max-width: 560px) {
+      .app { padding: 0 16px 80px; }
+      header { padding: 20px 0; margin-bottom: 24px; }
+      .logo { font-size: 20px; }
+      .logo-sub { display: none; }
+      .row-2 { grid-template-columns: 1fr; }
+      .input-panel { padding: 20px 18px; }
+      .block { padding: 18px 16px; }
+      .note-head { padding: 13px 14px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      MindLab
+      <span class="logo-sub">beta</span>
+    </div>
+    <div class="header-right">
+      <div class="notes-badge" onclick="renderProgress()" title="Открыть прогресс" style="cursor:pointer;">Заметок: <strong id="notesCount">0</strong></div>
+      <button class="btn-quick" id="btnQuick" title="Режим быстрого захвата — одно поле, одна кнопка">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Быстро
+      </button>
+      <button class="btn-icon" id="btnTheses">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        Тезисы <span id="thesisCount" style="margin-left:3px;background:rgba(91,91,214,.2);color:var(--accent);font-size:11px;border-radius:8px;padding:0 6px;">0</span>
+      </button>
+      <button class="btn-icon" id="btnLib">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Библиотека
+      </button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+  <div class="main-left">
+  <!-- ── Input ── -->
+  <div class="input-panel" id="inputPanel">
+    <div class="quick-hint" id="quickHint">⚡ Быстрый захват — просто пиши мысль, тема и сфера определятся автоматически</div>
+    <div class="row-2">
+      <div class="field">
+        <label class="field-label">Тема</label>
+        <input type="text" id="topic" placeholder="Необязательно — о чём эта мысль?">
+      </div>
+      <div class="field">
+        <label class="field-label">Сфера</label>
+        <select id="sphere">
+          <option value="Мышление">🧠 Мышление</option>
+          <option value="Сознание">👁 Сознание</option>
+          <option value="Деньги">💰 Деньги</option>
+          <option value="Поведение">🎯 Поведение</option>
+          <option value="Отношения">🔗 Отношения</option>
+          <option value="Работа">💼 Работа</option>
+          <option value="Рост">🌱 Рост</option>
+          <option value="Инструменты">🔧 Инструменты</option>
+          <option value="Образование">📚 Образование</option>
+          <option value="Мир">🌍 Мир</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="textarea-header">
+        <label class="field-label">Текст для анализа</label>
+        <button class="btn-mic" id="btnMic" onclick="toggleVoice()" title="Голосовой ввод">
+          <svg id="micIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+          </svg>
+          <span id="micLabel">Говорить</span>
+        </button>
+      </div>
+      <textarea id="textIn" placeholder="Нажми «Говорить» и скажи свою мысль — или напечатай текст..."></textarea>
+      <div class="mic-status" id="micStatus"></div>
+    </div>
+
+    <button class="btn-analyze" id="btnAnalyze">Анализировать</button>
+  </div>
+
+  </div><!-- end main-left -->
+
+  <div class="main-right">
+  <!-- ── Loading ── -->
+  <div class="loading" id="loading">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <span>Интегрирую в структуру...</span>
+  </div>
+
+  <!-- ── Results ── -->
+  <div class="results" id="results">
+    <div class="results-top">
+      <div class="results-meta" id="resMeta"></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-ghost" id="btnCopyAll">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Копировать всё
+        </button>
+        <button class="btn-ghost" id="btnNewNote" onclick="newNote()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Новая заметка
+        </button>
+      </div>
+    </div>
+    <div id="blocks"></div>
+  </div>
+  </div><!-- end main-right -->
+  </div><!-- end main-layout -->
+
+  <!-- ── Library ── -->
+  <div class="library" id="library">
+    <div class="lib-header">
+      <div class="lib-title">Библиотека заметок</div>
+    </div>
+    <div style="font-size:12px;color:#555560;margin-bottom:16px;line-height:1.7;">
+      Заметки группируются по <strong style="color:#8B8B9A;">темам</strong> — папки открываются по нажатию. Фильтруй по <strong style="color:#8B8B9A;">сфере</strong> через кнопки ниже. Нажми на счётчик заметок вверху чтобы увидеть <strong style="color:#5B5BD6;">прогресс второго мозга</strong>.
+    </div>
+
+    <div class="pills" id="pills">
+      <button class="pill on" data-s="all">Все</button>
+      <button class="pill" data-s="Мышление">🧠 Мышление</button>
+      <button class="pill" data-s="Сознание">👁 Сознание</button>
+      <button class="pill" data-s="Деньги">💰 Деньги</button>
+      <button class="pill" data-s="Поведение">🎯 Поведение</button>
+      <button class="pill" data-s="Отношения">🔗 Отношения</button>
+      <button class="pill" data-s="Работа">💼 Работа</button>
+      <button class="pill" data-s="Рост">🌱 Рост</button>
+      <button class="pill" data-s="Инструменты">🔧 Инструменты</button>
+      <button class="pill" data-s="Образование">📚 Образование</button>
+      <button class="pill" data-s="Мир">🌍 Мир</button>
+    </div>
+
+    <div id="notesList"></div>
+  </div>
+
+  <!-- ── Тезисы ── -->
+  <div class="theses" id="theses">
+    <div class="lib-header">
+      <div class="lib-title">Тезисы для проживания</div>
+    </div>
+    <p class="theses-subhead">Тезисы — это не заметки. Это утверждения которые нужно не только понять, но и прожить. Два этапа: интеллектуальное осознание → реальный момент в жизни.</p>
+
+    <!-- Форма добавления -->
+    <div class="thesis-form">
+      <textarea class="thesis-form-textarea" id="thesisText" placeholder="Введи тезис — утверждение из методологии которое хочешь сделать своим..."></textarea>
+      <div class="thesis-form-row">
+        <select id="thesisSphere">
+          <option value="Сознание">👁 Сознание</option>
+          <option value="Мышление">🧠 Мышление</option>
+          <option value="Поведение">🎯 Поведение</option>
+          <option value="Отношения">🔗 Отношения</option>
+          <option value="Рост">🌱 Рост</option>
+          <option value="Деньги">💰 Деньги</option>
+          <option value="Работа">💼 Работа</option>
+        </select>
+        <button class="btn-add-thesis" onclick="addThesis()">+ Добавить тезис</button>
+      </div>
+    </div>
+
+    <!-- Фильтр по статусу -->
+    <div class="thesis-tabs" id="thesisTabs">
+      <button class="thesis-tab on" data-status="all">Все</button>
+      <button class="thesis-tab" data-status="new">⚪ Новые</button>
+      <button class="thesis-tab" data-status="understood">🔵 Понятые</button>
+      <button class="thesis-tab" data-status="lived">✅ Прожитые</button>
+    </div>
+
+    <div id="thesesList"></div>
+  </div>
+
+</div>
+<div id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+// ── State ──────────────────────────────────────────
+let notes = JSON.parse(localStorage.getItem('ml_notes') || '[]');
+let activeSphere = 'all';
+let currentResult = null;
+let quickMode = false;
+
+// ── AI Response Bank ────────────────────────────────
+const bank = {
+  money: [
+    {
+      meaning:     'Деньги — усилитель, а не цель. Они делают больше того, кем ты уже являешься: больше щедрости или больше страха.',
+      connection:  'Вероятно, при росте дохода привычки оставались прежними. Деньги текут туда, куда уже направлено внимание — это поддаётся наблюдению в собственном опыте.',
+      insight:     'Финансовый потолок — это не про деньги. Это про идентичность: каким человеком ты себя считаешь в финансовом смысле.',
+      anchor:      'Деньги следуют за идентичностью — измени то, кем ты себя считаешь, и поток изменится.',
+      integration: 'Каждый финансовый выбор начнёт восприниматься как подтверждение или противоречие твоей идентичности. Это незаметно, но принципиально меняет решения.',
+      neuro:       'Формируется паттерн: вместо "как мне заработать больше?" мозг начнёт задавать "кем мне стать, чтобы деньги пришли как следствие?" — это разные стратегии, дающие разные результаты.'
+    },
+    {
+      meaning:     'Большинство финансовых проблем — поведенческие проблемы в деловом костюме. Знаний достаточно. Дефицит — в последовательном действии.',
+      connection:  'Скорее всего, ты знаешь, что нужно делать с деньгами. Но делаешь другое. Это не невежество — это конфликт между долгосрочной стратегией и краткосрочным импульсом.',
+      insight:     'Финансовая дисциплина — это не сила воли. Это правильно спроектированная среда, где правильное действие становится путём наименьшего сопротивления.',
+      anchor:      'Убери трение с нужного действия — и оно начнёт происходить само.',
+      integration: 'Вопрос сместится с "почему я не делаю то, что знаю?" на "как изменить среду, чтобы нужное поведение происходило автоматически?"',
+      neuro:       'Начинает формироваться проектировочный паттерн: мозг начинает видеть поведение как функцию системы, а не характера — и это открывает реальные рычаги изменения.'
+    }
+  ],
+  time: [
+    {
+      meaning:     'Прокрастинация — не лень. Это защитная реакция от столкновения с несовершенством: пока не начал, нельзя провалиться.',
+      connection:  'Вероятно, ты откладываешь именно то, что важно. Неважные задачи выполняются без сопротивления — сопротивление само указывает на ценность.',
+      insight:     'Мотивация не предшествует действию — она следует за ним. Ждать вдохновения значит ждать разрешения, которое никто не даст.',
+      anchor:      'Действие создаёт мотивацию. Начни до того, как захочешь начать.',
+      integration: 'Это знание активирует "старт-рефлекс": при появлении сопротивления мозг получит сигнал — раз страшно, значит важно, значит начинаем прямо сейчас.',
+      neuro:       'Перепрограммируется петля Тревога → Откладывание → Облегчение → Больше тревоги. Новый паттерн: Тревога → Сигнал важности → Микродействие → Тяга к продолжению.'
+    },
+    {
+      meaning:     'Время нельзя сэкономить — только инвестировать. Всё, что не направляется намеренно, расходуется фоновым шумом.',
+      connection:  'Скорее всего, конец дня иногда ощущается как "куда ушло время?" — это признак реактивного режима: ты отвечал на чужие приоритеты вместо своих.',
+      insight:     'Занятость и продуктивность — противоположности. Самые занятые люди редко делают самое важное.',
+      anchor:      'Управляй не временем — управляй вниманием: всё остальное выстроится вслед.',
+      integration: 'Каждый раз при выборе следующей задачи мозг начнёт задавать вопрос: "Это реакция или намерение?" — и этот вопрос сам по себе меняет приоритеты.',
+      neuro:       'Формируется паттерн различения: мозг учится мгновенно классифицировать действия на реактивные (чужие приоритеты) и намеренные (свои). Это первая ступень к реальному управлению временем.'
+    }
+  ],
+  thinking: [
+    {
+      meaning:     'Качество мышления определяется не IQ — а качеством вопросов, которые ты задаёшь. Вопрос создаёт пространство ответа.',
+      connection:  'Вероятно, лучшие идеи приходили тебе не за столом — а в движении, разговоре, смене контекста. Мышление — не изолированный процесс.',
+      insight:     'Большинство тупиков — это не тупики мышления, а тупики вопроса. Смени вопрос — и реальность вокруг него изменится.',
+      anchor:      'Лучший способ решить проблему — переформулировать вопрос, с которого ты начал.',
+      integration: 'При столкновении с любой проблемой мозг начнёт сначала проверять: правильно ли поставлен вопрос — прежде чем искать ответ.',
+      neuro:       'Начинает формироваться мета-когнитивный паттерн: мозг учится думать о том, как он думает. Это редкий и мощный навык — основа нестандартных решений.'
+    },
+    {
+      meaning:     'Понятое без структуры испаряется. Понятое со структурой — строится. Систематизация — это не бюрократия, это мышление.',
+      connection:  'Ты наверняка замечал: одни знания "прилипают" и меняют поведение, другие исчезают через неделю. Разница — в структуре усвоения, не в сложности материала.',
+      insight:     'Понимание — это не факт в памяти. Это изменение того, как ты видишь следующую ситуацию. Если понимание ничего не изменило — оно не состоялось.',
+      anchor:      'Знание становится твоим только когда меняет следующее решение.',
+      integration: 'Каждая новая идея начнёт проходить фильтр: "Как это изменит моё следующее действие?" Если ответа нет — идея не усвоена, нужно глубже.',
+      neuro:       'Формируется паттерн деятельного мышления: мозг перестаёт коллекционировать идеи и начинает искать точку их применения — это в разы повышает КПД обучения.'
+    }
+  ],
+  behavior: [
+    {
+      meaning:     'Поведение — не отражение ценностей. Это отражение систем, в которых ты живёшь. Среда сильнее намерения.',
+      connection:  'Скорее всего, есть привычки, которые ты хочешь изменить уже давно. Сила воли — не причина их существования и не инструмент изменения.',
+      insight:     'Изменить поведение через намерение сложно. Изменить среду — почти автоматически меняет поведение. Это не слабость — это нейробиология.',
+      anchor:      'Не борись с собой — перепроектируй контекст, и поведение изменится само.',
+      integration: 'Вопрос сместится с "почему я такой?" на "какая среда производит такое поведение?" — и второй вопрос решаем конкретными действиями.',
+      neuro:       'Мозг начинает сканировать не внутреннее состояние, а внешние триггеры поведения. Это первый шаг к реальным изменениям — видеть систему, а не обвинять характер.'
+    }
+  ],
+  learning: [
+    {
+      meaning:     'Обучение — не накопление информации. Это изменение того, как ты видишь мир. Если после обучения смотришь так же — не было обучения.',
+      connection:  'Возможно, ты замечал: после настоящего обучения не нужно помнить факты — меняется сам способ видеть ситуации. Это качественно другое, чем запомнить.',
+      insight:     'Большинство учёбы — это потребление. Настоящее обучение начинается с применения и столкновения с реальностью. Без этого — иллюзия знания.',
+      anchor:      'Учёба без практики — это чтение меню вместо обеда.',
+      integration: 'После каждого обучения мозг начнёт автоматически задавать вопрос: "Где и когда я применю это в ближайшие 24 часа?" — не как дисциплина, а как рефлекс.',
+      neuro:       'Формируется цикл трансфера: Знание → Применение → Обратная связь → Обновлённое знание. Это в разы эффективнее пассивного чтения и создаёт устойчивые паттерны.'
+    }
+  ],
+  relations: [
+    {
+      meaning:     'Отношения — это не состояние. Это практика. Их качество определяется тем, что делается регулярно, а не тем, что чувствуется иногда.',
+      connection:  'Вероятно, в важных отношениях ты замечал: когда всё хорошо — ничего не делаешь. Когда плохо — пытаешься всё исправить сразу. Это нормально, но не работает.',
+      insight:     'Большинство конфликтов — это не про конкретный повод. Это накопленный дефицит внимания, который прорывается через случайный триггер.',
+      anchor:      'Отношения живут от регулярного внимания — не от редких больших жестов.',
+      integration: 'Внимание к отношениям сместится с реактивного ("что-то пошло не так") на проактивное ("что я регулярно делаю для этого?").',
+      neuro:       'Начинает формироваться паттерн превентивной заботы: мозг учится видеть отношения как практику, требующую постоянного, пусть небольшого, внимания.'
+    }
+  ],
+  consciousness: [
+    {
+      meaning:     'Сознание — не то, что ты думаешь о себе. Это пространство, в котором всё происходит. Ты не владелец мыслей — ты то, в чём они возникают.',
+      connection:  'Вероятно, в момент сильного переживания ты замечал зазор — "что-то наблюдает за мной изнутри". Это не метафора. Это прямое указание на суть Воззрения.',
+      insight:     'Эго — не враг и не хозяин. Это набор программ, запущенных контентом окружения. Осознать это значит впервые увидеть систему изнутри.',
+      anchor:      'Ты не программа — ты тот, кто может её наблюдать.',
+      integration: 'Следующий раз когда возникнет автоматическая реакция — сделай паузу на 3 секунды. Не чтобы остановить реакцию, а чтобы увидеть: кто реагирует?',
+      neuro:       'Формируется паттерн наблюдателя: мозг начинает отделять "я как процесс" от "я как наблюдатель процесса". Это ядро Технологии Просветления по Ханту.'
+    },
+    {
+      meaning:     'Мысль, которая возникла — не твоя. Она просто появилась в пространстве. Твоей она становится в момент отождествления: когда ты говоришь "это я так думаю".',
+      connection:  'Вспомни последний триггер — момент когда тебя что-то зацепило и началась реакция. Сама реакция уже шла — до того как ты "решила" реагировать. Именно это Хант разбирает в Мистериях Шивы 3.',
+      insight:     'Наблюдатель — тоже конструкция. Даже "я просто наблюдаю за своей жизнью" — это тонкое отождествление. Настоящее воззрение — когда исчезает и наблюдатель.',
+      anchor:      'Мысль возникла — но ты не обязана на неё подписываться.',
+      integration: 'Сегодня: когда заметишь сильную реакцию — спроси не "почему я так реагирую", а "в какой момент эта мысль стала моей?". Просто понаблюдай механику.',
+      neuro:       'Активируется паттерн деотождествления: мозг учится видеть зазор между импульсом и присвоением. Именно в этом зазоре — пространство выбора по ТП.'
+    },
+    {
+      meaning:     'Контент формирует внимание — внимание формирует реальность. Ты не выбираешь свободно: твой выбор предопределён тем, что заполняет твоё поле восприятия.',
+      connection:  'Посмотри на последние 7 дней: какой контент занимал большую часть внимания? Именно этот контент и строил твою реальность — незаметно, но неотвратимо.',
+      insight:     'Эксперимент Либета это не философия — это нейробиология. Мозг принимает решение за 0.35 секунды до того, как ты "решаешь". Свобода воли начинается не с выбора, а с выбора контента.',
+      anchor:      'Управляй не решениями — управляй тем, чем наполнено твоё пространство внимания.',
+      integration: 'Сегодня: один информационный источник убери, один — добавь осознанно. Не потому что "надо", а как эксперимент с реальностью.',
+      neuro:       'Активируется паттерн контентного дизайна: мозг начинает видеть своё окружение как программируемую среду, а не данность. Это даёт реальный рычаг трансформации.'
+    },
+    {
+      meaning:     'Медитация не делается — она случается. Нельзя "медитировать" усилием эго. Это как пытаться заснуть силой воли: само усилие мешает.',
+      connection:  'Если практика ощущается как дисциплина, долг или достижение — скорее всего ты попала в то, что Хант называет "духовный конслагер": жёсткая практика ради прокачки духовного эго.',
+      insight:     'Энергетический потенциал от практики идёт туда, куда ведёт контент. Практика без правильного направления не трансформирует — она просто накапливает потенциал, который выходит через старые паттерны.',
+      anchor:      'Практика — не достижение. Это освобождение потенциала, который уже есть.',
+      integration: 'Ближайшую практику начни без таймера и цели. Просто сядь, продышись, размяйся — и посмотри что случится само. Не делай медитацию — дай ей случиться.',
+      neuro:       'Перестраивается паттерн усилия: мозг учится различать "делание из эго" и "естественный поток". Это переход от форсирования к воззрению — ключевой сдвиг в ТП.'
+    },
+    {
+      meaning:     'Интеграция опыта — это не осмысление. Это когда прожитое меняет то, как ты видишь следующую ситуацию. Без этого даже самый глубокий опыт остаётся историей.',
+      connection:  'Скорее всего, у тебя есть переживания — сильные, важные — которые так и не стали частью мышления. Они лежат как архив, а не как живое знание.',
+      insight:     'После глубокого опыта деньги, отношения, работа видятся как игра энергии — не как проблемы. Это не отстранённость, это другой уровень контакта с реальностью.',
+      anchor:      'Опыт без интеграции — событие. Опыт с интеграцией — трансформация.',
+      integration: 'Возьми один сильный опыт из прошлого. Задай вопрос: "Что во мне изменилось после этого?" Если ответа нет — интеграция не произошла. Начни сейчас.',
+      neuro:       'Запускается цикл интеграции: Опыт → Рефлексия → Структура → Новое восприятие. Именно так работает "Технология Просветления" — не как набор знаний, а как живой процесс.'
+    },
+    {
+      meaning:     'Предопределённость и свобода воли — не противоположности. Тело действует, сцена разворачивается — а "я" появляется после, как комментатор уже случившегося.',
+      connection:  'Вспомни момент когда действовал идеально — в потоке, без раздумий. Там не было "я, который решает". Было просто действие. Это и есть воззрение на предопределённость без фатализма.',
+      insight:     'Вопрос не "есть ли у меня свобода воли", а "кто тот, кто спрашивает об этом?". Сам вопрошающий — и есть та конструкция, которую ТП предлагает исследовать.',
+      anchor:      'Свобода — не в том чтобы выбирать. А в том чтобы видеть кто выбирает.',
+      integration: 'Сегодня в одной ситуации: вместо того чтобы "принять решение" — понаблюдай как решение принимается само. Просто зафиксируй этот момент.',
+      neuro:       'Формируется паттерн метанаблюдения: мозг начинает видеть собственные решения как процесс, а не как акт воли. Это прямой опыт концепции Либета — не как теория, а как наблюдение.'
+    }
+  ],
+  default: [
+    {
+      meaning:     'Суть этой идеи — в различении: что действительно важно, а что лишь кажется важным в моменте.',
+      connection:  'Вероятно, это касается области, где у тебя уже есть накопленный опыт. Новая идея — это линза для его переосмысления, а не замена.',
+      insight:     'Самые ценные выводы — не новые факты, а новые связи между давно известными вещами. Понимание рождается на стыке.',
+      anchor:      'Новое понимание — это не что-то добавленное, а что-то увиденное в том, что уже есть.',
+      integration: 'Это знание начнёт проявляться как готовность переосмыслить уже "известное" — самый редкий и ценный интеллектуальный навык.',
+      neuro:       'Формируется паттерн реинтерпретации: мозг учится видеть старый опыт через новые фреймворки, создавая нестандартные связи и решения.'
+    },
+    {
+      meaning:     'За этой идеей стоит принцип: понимание без структуры испаряется — понимание со структурой строится.',
+      connection:  'Возможно, ты уже встречал похожие мысли, но они не "прилипли". Сейчас ты создаёшь контейнер, который их удержит и сделает рабочими.',
+      insight:     'Не каждая идея должна быть понята сразу. Некоторые раскрываются только когда начинаешь ими пользоваться — понимание приходит через действие.',
+      anchor:      'Идея становится твоей только когда находит место в системе мышления.',
+      integration: 'Это знание активирует паттерн "поиска применения": каждый новый инсайт будет автоматически искать точку соприкосновения с уже известным.',
+      neuro:       'Начинает формироваться интеграционный паттерн: мозг перестаёт хранить идеи отдельно и начинает строить сети — это основа второго мозга.'
+    },
+    {
+      meaning:     'Ключевое здесь: сложное становится простым, когда найдено правильное название. Называние — первый акт власти над явлением.',
+      connection:  'Возможно, ты чувствовал это интуитивно, но не мог сформулировать. Теперь это получило форму — и станет доступнее для работы.',
+      insight:     'Без имени — туман. С именем — предмет для работы. Большинство путаницы в мышлении — это проблема точности языка, а не глубины понимания.',
+      anchor:      'Понять что-то — значит найти слова, которые это точно удерживают.',
+      integration: 'Это знание выразится как привычка искать точные слова вместо того, чтобы останавливаться на "понятно, но не объяснить".',
+      neuro:       'Начинает формироваться вербальный паттерн точности: мозг учится требовать ясности от самого себя — и это принципиально улучшает и мышление, и коммуникацию.'
+    }
+  ]
+};
+
+function detectTheme(text) {
+  const t = text.toLowerCase();
+  if (/деньги|финанс|доход|богат|зарплат|инвести|прибыл|расход|бюджет|сбереж|капитал|кредит/.test(t)) return 'money';
+  if (/время|прокрастин|откладыв|лень|завтра|успеть|дедлайн|промедл|не могу начать|медлю/.test(t)) return 'time';
+  if (/мышл|думат|фреймворк|ментал|когнитив|логик|анализ|решени|вывод|идея|интеллект/.test(t)) return 'thinking';
+  if (/привычк|поведен|измен|сила воли|дисциплин|рутин|автоматизм|триггер/.test(t)) return 'behavior';
+  if (/учёб|учеб|обучени|знани|навык|курс|образован|практик|запомн|изучить/.test(t)) return 'learning';
+  if (/отношени|любовь|семья|друж|конфликт|партнёр|близкий|общени/.test(t)) return 'relations';
+  if (/сознани|воззрени|просветлен|эго|медитац|внимани|не-двойств|адвайт|осознан|трип|психоделик|интеграц опыт|хант|технологи просветлен|контент личност|пространств|прямое воспр/.test(t)) return 'consciousness';
+  return 'default';
+}
+
+function detectSphere(text) {
+  const t = text.toLowerCase();
+  if (/деньги|финанс|доход|богат|зарплат|инвести/.test(t)) return 'Деньги';
+  if (/время|прокрастин|откладыв/.test(t)) return 'Мышление';
+  if (/привычк|поведен|измен|дисциплин/.test(t)) return 'Поведение';
+  if (/учёб|учеб|обучени|знани|курс/.test(t)) return 'Образование';
+  if (/отношени|любовь|семья|друж/.test(t)) return 'Отношения';
+  if (/сознани|воззрени|просветлен|эго|медитац|хант|трип|психоделик/.test(t)) return 'Сознание';
+  if (/мышл|думат|фреймворк|идея|интеллект/.test(t)) return 'Мышление';
+  return 'Рост';
+}
+
+function getResponse(text) {
+  const theme = detectTheme(text);
+  const pool = bank[theme] || bank.default;
+  if (pool.length === 1) return pool[0];
+
+  // Score each entry by keyword match with input text
+  const t = text.toLowerCase();
+  const scores = pool.map((entry, i) => {
+    const combined = (entry.meaning + entry.anchor + entry.neuro).toLowerCase();
+    let score = 0;
+    // Split input into words and check overlap with entry
+    const words = t.split(/\s+/).filter(w => w.length > 4);
+    words.forEach(w => { if (combined.includes(w)) score++; });
+    return { i, score };
+  });
+
+  // Pick highest scoring, fallback to random if all zero
+  scores.sort((a, b) => b.score - a.score);
+  const best = scores[0].score > 0 ? scores[0].i : Math.floor(Math.random() * pool.length);
+  return pool[best];
+}
+
+// ── Helpers ──────────────────────────────────────────
+function esc(str) {
+  return str
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function toast(msg, dur = 2200) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+function updateCount() {
+  document.getElementById('notesCount').textContent = notes.length;
+}
+
+function extractTopic(text) {
+  const t = text.trim().split(/\s+/).slice(0, 6).join(' ');
+  return t.length > 36 ? t.slice(0, 36) + '…' : t;
+}
+
+// ── Quick mode toggle ─────────────────────────────────
+document.getElementById('btnQuick').addEventListener('click', () => {
+  quickMode = !quickMode;
+  const btn = document.getElementById('btnQuick');
+  const panel = document.getElementById('inputPanel');
+  const hint = document.getElementById('quickHint');
+  btn.classList.toggle('active', quickMode);
+  panel.classList.toggle('quick-mode', quickMode);
+  hint.classList.toggle('show', quickMode);
+  if (quickMode) {
+    document.getElementById('textIn').focus();
+    document.getElementById('btnAnalyze').textContent = '⚡ Анализировать';
+  } else {
+    document.getElementById('btnAnalyze').textContent = 'Анализировать';
+  }
+});
+
+// ── AI Config ────────────────────────────────────────
+const GROQ_KEY = window.GROQ_KEY || '';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+// База знаний ТП встроена прямо в приложение (из knowledge_base.md)
+const knowledgeBase = `## 1. МЕДИТАЦИЯ
+
+"Медитация является частью естественного хода движения внимания по контенту, по практикам, по тебе, по жизни, по сути, по пространству." [myst5-medit]
+"Медитация с человеком случается. Невозможно попасть в медитацию усилиями. Это изнурение нервной системы." [myst5-medit]
+"Я не могу сказать, что я вхожу в медитацию. Это просто неверно." [myst5-medit]
+Уровни: 1. Концентрация (дхарана) — тренируется. 2. Созерцание (дхьяна) — безопорное. 3. Медитация — спонтанное, случается само.
+"Встал с утра — быстро в йогу, 20 минут по таймеру медитацию. Человек попадает в духовный конслагер. Если есть форсирование, достигательство — это и приводит к разрушению." [myst5-medit]
+
+## 2. ВНИМАНИЕ
+
+"Внимание — это как свет. Он может быть сфокусированным, в виде луча, и расфокусированным, в виде диффузного освещения. Как фонарик — и как лазер." [hant-pro-svet]
+"Внимание утончается и возвращается в то, чем оно по сути является — пространство. Это узнавание природы самого внимания." [hant-pro-svet]
+"Именно по контенту движется внимание, которое потом человеком воспринимается как его сознательный выбор."
+Практика: вытаскивание внимания из органов чувств → наблюдение → созерцание. Человек не управляет вниманием — если бы управлял, никогда бы не выходил из концентрации.
+"Вот посмотри: 5 минут закрой глаза и понаблюдай. Куда ушли глаза? Мысль одна, вторая... А это ты делаешь, или ты просто наблюдаешь, как в потоке происходят мысли?" [mystery03-trigger]
+Ученик: "Осознаёшься пространством — смотришь на всё как зритель, и режиссёр, и сценарист одновременно."
+
+## 3. МЫСЛИ НЕ МОИ / МЕХАНИЗМ ТРИГГЕРА
+
+"Первичная мысль была не твоя. Мысль попала как контент в поле внимания — и вот она уже кажется 'моей'. Вот этот механизм нужно видеть." [mystery03-trigger]
+"Мысль возникла — не по моей воле. До тех пор пока она не присвоена — это просто мысль. В какой момент она становится 'моей'? Вот этот механизм надо очень чётко видеть." [mystery03-trigger]
+Ловушки: реагировать и отождествляться — первая крайность. "Я светлый, буду подавлять агрессию" — то же самое, другой фантомный образ.
+"Меня как кого?" — использовать как медитацию. Когда что-то волнует: меня как кого это волнует?" [shiva-myst04]
+Самоосвобождение: мысль приходит и уходит сама, без вцепления.
+
+## 4. ВЫБОР И СВОБОДА ВОЛИ
+
+"Выбор существует. Но вопрос: делаю ли я выбор? Выясняется, что выбор есть, но он не мой." [shiva-myst04]
+"При детальном рассмотрении — никакого деятеля нет. Есть осознаваемая в пространстве последовательность: действие, ощущения и мысли." [shiva-myst04]
+"Следующая мысль придёт — выбрал ли ты её? Нет. Это надо просто увидеть. Когда видишь один раз, два, пять, десять — это становится ежедневной практикой, это освобождает." [mysterii06]
+Эксперимент Либета: мозг принимает решение на 0.35 сек раньше, чем возникает осознание намерения.
+Ученик: "Когда понял, что выбор не мой — автоматически отпала рефлексия о прошлом и страх будущего."
+
+## 5. КОНТЕНТ
+
+"Контент является супер важной частью реальности сознания."
+"Контент личности и среды формирует программы. Именно по контенту движется внимание."
+Механизм: мысль/парадигма попадает в поле как контент → биосистема разворачивает её через действия → это не осознанный выбор, а следствие контента.
+"Человек хочет йогой заниматься. Но почему именно йогой? Контент. Резонанс сработал: увидел красивый пример — контент попал в систему, начал разворачиваться." [myst5-medit]
+Практическое следствие: нужен "правильный" контент — люди, информация, практики, среда формируют нейросети.
+
+## 6. ПРОСТРАНСТВО / СОЗНАНИЕ
+
+"Само Дао бесконечно — и пространство осознания в принципе безгранично. Поэтому уровней просветления бесконечно много." [hant-pro-svet]
+"Пространство пустое? Нет. Пустота пространства — это возможность, потенциальность." [mystery07]
+"Сознание и пространство — одно и то же. Из этого источника всё появляется. Мысленные колебания рождаются из пространства и в нём же умирают." [shiva-myst04]
+Практика: войти в помещение → осознать себя этим помещением → расширяться: район, город, планета, галактика. Не отделять тело от пространства.
+Ученик: "Я пережил себя пространством. Познаваемое, процесс познания и познающий — слились в одном. Бескрайнее пространство без разделений."
+
+## 7. ЭГО / ПЕРСОНАЖ / ФАНТОМНЫЙ ОБРАЗ
+
+"Есть фантомный образ 'раздражительного' — и есть фантомный образ 'светлого практика'. Это одно и то же — отождествление с разными образами." [mystery03-trigger]
+"Отдельного 'я' нет. Есть поток сознания. 'Я'-наблюдатель — тоже мысль." [shiva-myst04]
+Не забываться в персонаже: как только забываешься — начинается жизнь без воззрения. Нужна концентрация, пока это не станет автоматизмом.
+
+## 8. ПРОСВЕТЛЕНИЕ / РЕАЛИЗАЦИЯ
+
+"Просветление — это последовательное узнавание себя и своей природы. Через внимание, работа с вниманием, работа с сознанием, работа с состоянием." [hant-pro-svet]
+"Это не ты просветлел. Ты просто вспомнил это. Это было всегда." [hant-pro-svet]
+"Реализация — это энергия, сила, потенциал, который выражается. Это касается и денег, и бизнеса, и творчества, и духовного." [myst_live03]
+"Три уровня взаимодействия со знанием: слушание — размышление — созерцание/интеграция. Знание становится твоим только когда устоялось, стало опытом."
+Ученик: "Квантовый туннель — сначала двигался потихоньку, потом ощущение что иду по 10 миль за один шаг. Всё очень быстро меняется."
+
+## 9. НЕ-ДВОЙСТВЕННОСТЬ / ЕДИНСТВО
+
+"Бог — просто слово. Если убрать слово Бог — что остаётся? Пространство. Пространство и сознание — одно и то же." [mystery07]
+"Бог — это процесс спонтанного самоузнавания себя в этом пространстве, этим пространством." [mystery07]
+Ученик: "Посмотрел на человека — я в его глазах, он в моих. Это бог сейчас друг друга узнал."
+
+## 10. ИНТЕГРАЦИЯ ОПЫТА
+
+"Воззрение не отменяет прошлый опыт — оно делает ему апгрейд. Вся информация, которая была — теперь работает в синергии, обретает иное качество применения."
+Ученик: "Произошёл конкретный фундаментальный сдвиг — смена правил игры. Классическая психология — полировка решётки в клетке. Здесь — зачистка бага на уровне исходного кода."
+
+## 11. ПРАКТИКИ — КОНКРЕТНЫЕ ИНСТРУКЦИИ
+
+Практика наблюдения: закрыть глаза 5 минут, просто наблюдать куда уходит внимание. Это ты управляешь вниманием или просто наблюдаешь поток?
+Практика "меня как кого": когда что-то волнует — задать вопрос "меня как кого?" Отождествление с ролью создаёт реакцию, не само событие.
+Обратный инжиниринг: взять уже произошедшую реакцию, пройти назад по цепочке, найти первичный импульс (он не твой).
+Практика пространства: войти в помещение → осознать себя этим помещением → расширяться до галактики. Не отделять тело от пространства.
+Созерцание: перемещать внимание как будто ищешь ощущение, не визуализация — поиск прямого ощущения.
+
+## 12. ТЕРМИНЫ ТП
+
+Воззрение — способ видения реальности, синтез не-двойственных традиций, прямой опыт.
+Контент — всё что заполняет поле внимания и формирует программы поведения.
+Духовный конслагер — насилие над собой ради практик из-за идеи "я должен".
+Фантомный образ — идентификация с каким-либо образом себя.
+Самоосвобождение — мысль приходит, осознаётся и уходит сама, без вцепления и подавления.
+Не забываться в персонаже — не отождествляться с автоматическими реакциями.
+Осознаёшься пространством — переживание себя как пространства.
+Квантовый туннель — резкое ускорение трансформации.
+Инсталляция — знание встаёт через практику, не через логику.
+Перепрошивка — глубокое изменение программ личности.`;
+
+const SYSTEM_PROMPT = `Ты — AI-ассистент приложения MindLab. Твоя задача: анализировать инсайт пользователя СТРОГО через призму методологии Ханта "Технология Просветления" (ТП), используя только концепции, термины и цитаты из материалов ниже.
+
+=== БАЗА ЗНАНИЙ: ТЕХНОЛОГИЯ ПРОСВЕТЛЕНИЯ (ХАНТ) ===
+
+КТО ТАКОЙ ХАНТ: Практик, исследователь сознания, создатель методологии "Технология Просветления". IT-специалист с опытом в нейробиологии, квантовой физике, биологии. Синтезирует науку и мистику. Изучил не-двойственные традиции (буддизм, адвайта, даосизм) и создал собственный синтез — "Воззрение". Создал сообщество "Элевсинские Мистерии 2.0".
+
+ЯДРО МЕТОДОЛОГИИ: ТП — синтез не-двойственных традиций, нейробиологии и прямого опыта. Центральный вопрос: как работает сознание и как выйти за пределы автоматических программ личности. 4 потока передачи Воззрения: 1 — базовая передача ТП; 2 — расширение практики; 3 — нейронаука (как мозг создаёт фантомов и иллюзии); 4 — метафоры и прикладное применение.
+
+КЛЮЧЕВЫЕ КОНЦЕПЦИИ:
+
+1. СОЗНАНИЕ И ВНИМАНИЕ. Внимание — главный инструмент. Контент предопределяет "выбор". Цитата Ханта: "Именно по контенту движется внимание, которое потом человеком воспринимается как его сознательный выбор."
+
+2. ВЫБОРА НЕТ (эксперимент Либета). Мозг запускает действие на треть секунды раньше, чем человек осознаёт намерение. Нет отдельного "я", которое выбирает.
+
+3. КОНТЕНТ ЛИЧНОСТИ. Контент — люди, информация, события, музыка. Контент формирует программы. Правильный контент = эволюция. Цитата: "Контент является супер важной частью реальности сознания."
+
+4. ПРОСТРАНСТВО. Прямое восприятие безграничности — ключевая практика ТП. Цитата: "Внимание способно устремиться в бесконечность и никогда не найти границы пространства."
+
+5. ЭГО И РАСТВОРЕНИЕ. Эго — набор программ, иллюзия отдельности. Просветление = исчезновение иллюзии отдельности.
+
+6. НЕ-ДВОЙСТВЕННОСТЬ (Адвайта). Нет разделения "я"/"мир", субъект/объект. Единство сознания и энергии.
+
+7. ИНТЕГРАЦИЯ ОПЫТА. Любой опыт требует: осмыслить → применить → встроить в жизнь.
+
+ТЕРМИНЫ ТП:
+- Воззрение — способ видения реальности (синоним ТП)
+- Контент — всё что заполняет поле внимания и формирует программы
+- Не забываться в персонаже — не отождествляться с автоматическими реакциями эго
+- Осознаёшься пространством — переживание себя как пространства
+- Инсталляция — знание встаёт через практику, не через логику
+- Не продукт ума — реализация приходит напрямую, не через усилие
+- Квантовый туннель — резкое ускорение трансформации
+- Источник внутри — внутренний источник осознанности
+- Перепрошивка — глубокое изменение программ личности
+- Живая передача — прямая передача состояния, не лекция
+
+ПРАКТИКИ СИСТЕМЫ ХАНТА: Йога (ежедневная), Медитация осознанности, Практика Пространства, Цигун и Тай-цзи, Психоделический опыт (с подготовкой и интеграцией), Трип-репорты, Майянский календарь Цолькин, Обсуждение в сообществе.
+
+ПРЯМЫЕ ЦИТАТЫ ХАНТА:
+- "Просветление — это последовательное узнавание себя и своей природы. Через внимание, работа с вниманием, работа с сознанием, работа с состоянием."
+- "Внимание — это как свет. Он может быть сфокусированным, в виде луча, и расфокусированным, в виде диффузного освещения."
+- "Это не ты просветлел. Ты просто вспомнил это. Это было всегда."
+- "Внимание утончается и возвращается в то, чем оно по сути является — пространство."
+- "Само Дао бесконечно — и пространство осознания в принципе безгранично. Поэтому уровней просветления бесконечно много."
+- "Реализация — это энергия, сила, потенциал, который выражается. Это касается и денег, и бизнеса, и творчества, и духовного."
+- "Тотальная жалость к себе — противоположное духовности."
+- "Как только забываешься — начинается жизнь без воззрения. Нужна концентрация пока не станет автоматизмом."
+- "Когда осознаёшься пространством — смотришь на всё как зритель, и режиссёр, и сценарист одновременно."
+- "Это не продукт ума — это приходит напрямую."
+- "Медитация является частью естественного хода движения внимания."
+
+=== КОНЕЦ БАЗЫ ЗНАНИЙ ===
+
+Правила анализа:
+- Отвечай ТОЛЬКО валидным JSON, без markdown, без пояснений
+- Опирайся ТОЛЬКО на концепции Ханта из базы знаний выше
+- СМЫСЛ — суть идеи через призму ТП (2-3 предложения)
+- СВЯЗЬ С СОБОЙ — как проявляется конкретно (с "ты", через язык ТП)
+- ОСОЗНАНИЕ — неожиданный вывод через концепции Ханта
+- ЯКОРЬ — фраза-якорь в духе ТП, максимум 15 слов
+- ИНТЕГРАЦИЯ — конкретная практика из системы Ханта
+- НЕЙРОКОНТУР — паттерн через призму "контент → программы → автоматизмы"
+
+Формат (строго):
+{"meaning":"...","connection":"...","insight":"...","anchor":"...","integration":"...","neuro":"..."}`;
+
+async function callAI(text, topic, sphere) {
+  const userMsg = `Тема: ${topic}\nСфера: ${sphere}\n\nИнсайт пользователя:\n${text}`;
+  const fullPrompt = SYSTEM_PROMPT.replace('=== КОНЕЦ БАЗЫ ЗНАНИЙ ===', knowledgeBase + '\n\n=== КОНЕЦ БАЗЫ ЗНАНИЙ ===');
+  const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GROQ_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      temperature: 0.7,
+      max_tokens: 1200,
+      messages: [
+        { role: 'system', content: fullPrompt },
+        { role: 'user', content: userMsg }
+      ]
+    })
+  });
+  if (!resp.ok) throw new Error(`API error ${resp.status}`);
+  const data = await resp.json();
+  const raw = data.choices[0].message.content.trim();
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('No JSON in response');
+  return JSON.parse(match[0]);
+}
+
+// ── New Note ─────────────────────────────────────────
+function newNote() {
+  stopVoice();
+  document.getElementById('textIn').value = '';
+  document.getElementById('topic').value = '';
+  document.getElementById('sphere').selectedIndex = 0;
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('blocks').innerHTML = '';
+  document.getElementById('textIn').style.height = '';
+  document.getElementById('textIn').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Voice Input ──────────────────────────────────────
+let recognition = null;
+let isRecording = false;
+
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    toast('Голосовой ввод не поддерживается в этом браузере. Используй Chrome.');
+    return;
+  }
+  if (isRecording) {
+    stopVoice();
+  } else {
+    startVoice();
+  }
+}
+
+function startVoice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ru-RU';
+  recognition.interimResults = true;
+  recognition.continuous = true;
+
+  const btn = document.getElementById('btnMic');
+  const label = document.getElementById('micLabel');
+  const status = document.getElementById('micStatus');
+  const textarea = document.getElementById('textIn');
+  const existingText = textarea.value.trim();
+
+  let interimText = '';
+
+  recognition.onstart = () => {
+    isRecording = true;
+    btn.classList.add('recording');
+    label.textContent = 'Остановить';
+    status.textContent = '🔴 Слушаю...';
+    status.classList.add('active');
+  };
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    if (final) {
+      interimText = '';
+      const sep = existingText || textarea.value.trim() ? ' ' : '';
+      textarea.value = (textarea.value.trim() + sep + final).trim();
+      autoResize(textarea);
+    }
+    status.textContent = interim ? `🔴 ${interim}` : '🔴 Слушаю...';
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error === 'no-speech') return;
+    stopVoice();
+    if (e.error === 'not-allowed') toast('Нет доступа к микрофону — разреши в браузере');
+    else toast('Ошибка микрофона: ' + e.error);
+  };
+
+  recognition.onend = () => {
+    if (isRecording) recognition.start(); // авто-перезапуск пока не нажали стоп
+  };
+
+  recognition.start();
+}
+
+function stopVoice() {
+  isRecording = false;
+  if (recognition) { recognition.onend = null; recognition.stop(); recognition = null; }
+  const btn = document.getElementById('btnMic');
+  const label = document.getElementById('micLabel');
+  const status = document.getElementById('micStatus');
+  btn.classList.remove('recording');
+  label.textContent = 'Говорить';
+  status.textContent = '';
+  status.classList.remove('active');
+  // автоматически запустить анализ если есть текст
+  const text = document.getElementById('textIn').value.trim();
+  if (text.length > 10) analyze();
+}
+
+// ── Analyze ──────────────────────────────────────────
+async function analyze() {
+  const text = document.getElementById('textIn').value.trim();
+  if (!text) { toast('Введи текст для анализа'); return; }
+
+  const btn = document.getElementById('btnAnalyze');
+  btn.disabled = true;
+
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('loading').classList.add('show');
+
+  const topic  = quickMode
+    ? extractTopic(text)
+    : (document.getElementById('topic').value.trim() || extractTopic(text));
+  const sphere = quickMode
+    ? detectSphere(text)
+    : document.getElementById('sphere').value;
+
+  let r;
+  try {
+    r = await callAI(text, topic, sphere);
+  } catch(e) {
+    console.warn('AI failed, using fallback:', e);
+    r = getResponse(text);
+  }
+
+  const noteId = Date.now().toString();
+  currentResult = { r, topic, sphere, text, id: noteId };
+
+  renderBlocks(r, topic, sphere);
+
+  const note = {
+    id: noteId,
+    date: new Date().toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' }),
+    topic, sphere,
+    src: text,
+    meaning:     r.meaning,
+    connection:  r.connection,
+    insight:     r.insight,
+    anchor:      r.anchor,
+    integration: r.integration,
+    neuro:       r.neuro
+  };
+
+  notes.unshift(note);
+  localStorage.setItem('ml_notes', JSON.stringify(notes));
+  updateCount();
+  renderNotes();
+
+  document.getElementById('loading').classList.remove('show');
+  btn.disabled = false;
+  document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  // Milestone: check if 7th or 21st note on this topic
+  const topicNotes = notes.filter(n => n.topic === topic);
+  if (topicNotes.length === 7 || topicNotes.length === 21) {
+    checkMilestone(topic, topicNotes);
+  }
+}
+
+// ── Milestone: evolution of thinking ─────────────────
+async function checkMilestone(topic, topicNotes) {
+  const count = topicNotes.length;
+  // Build a short digest of anchors + insights for this topic
+  const digest = topicNotes.slice(0, 21).map((n, i) =>
+    `[${i+1}] Якорь: ${n.anchor || '—'} | Осознание: ${n.insight || '—'}`
+  ).join('\n');
+
+  const prompt = `Пользователь сделал ${count} заметок по теме "${topic}". Вот их якоря и осознания по порядку (от новых к старым):\n\n${digest}\n\nПроанализируй эволюцию мышления: как изменилось понимание от первой заметки к последней? Ответь коротко (3-4 предложения), через призму методологии Ханта. Отвечай на русском.`;
+
+  let evolution = '';
+  try {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        temperature: 0.6,
+        max_tokens: 300,
+        messages: [
+          { role: 'system', content: 'Ты ассистент MindLab. Анализируй эволюцию мышления строго по концепциям Ханта (ТП). Отвечай кратко, по-русски, без JSON.' },
+          { role: 'user', content: prompt }
+        ]
+      })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      evolution = data.choices[0].message.content.trim();
+    }
+  } catch(e) {
+    evolution = count === 7
+      ? 'Семь заметок по одной теме — это уже не случайный интерес. Внимание возвращается сюда снова и снова. По ТП Ханта: контент формирует программы. Ты формируешь новый паттерн.'
+      : 'Двадцать одна заметка — цикл завершён. По нейробиологии: 21 день достаточно для формирования нового нейронного паттерна. Это знание становится частью твоего мышления.';
+  }
+
+  showMilestoneBanner(topic, count, evolution);
+}
+
+function showMilestoneBanner(topic, count, text) {
+  const existing = document.getElementById('milestoneBanner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'milestoneBanner';
+  banner.style.cssText = `
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%);
+    background:#161618; border:1px solid rgba(91,91,214,.4);
+    border-radius:16px; padding:20px 24px; max-width:520px; width:calc(100% - 48px);
+    z-index:1000; box-shadow:0 8px 32px rgba(0,0,0,.5), 0 0 0 1px rgba(91,91,214,.15);
+    animation: slideUp 300ms cubic-bezier(0.4,0,0.2,1);
+  `;
+
+  const icon = count === 7 ? '🧩' : '🧠';
+  const title = count === 7 ? `7 заметок по теме «${topic}»` : `21 заметка по теме «${topic}»`;
+  const subtitle = count === 7 ? 'Сдвиг начался' : 'Паттерн сформирован';
+
+  banner.innerHTML = `
+    <style>@keyframes slideUp { from { opacity:0; transform:translateX(-50%) translateY(16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }</style>
+    <div style="display:flex;align-items:flex-start;gap:14px;">
+      <span style="font-size:24px;flex-shrink:0;">${icon}</span>
+      <div style="flex:1;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:4px;">${subtitle}</div>
+        <div style="font-size:14px;font-weight:600;color:#EDEDEF;margin-bottom:8px;">${title}</div>
+        <div style="font-size:13px;color:#8B8B9A;line-height:1.65;">${text}</div>
+      </div>
+      <button onclick="document.getElementById('milestoneBanner').remove()" style="background:transparent;border:none;color:#555560;cursor:pointer;font-size:20px;line-height:1;padding:2px;flex-shrink:0;">×</button>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+  setTimeout(() => banner?.remove(), 15000);
+
+  // After 21 notes on a topic — offer a test
+  if (count === 21) {
+    setTimeout(() => showTestOffer(topic, topicNotes), 1000);
+  }
+}
+
+// ── Test after 21 days ────────────────────────────────
+async function showTestOffer(topic, topicNotes) {
+  const existing = document.getElementById('testModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'testModal';
+  modal.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+    animation:fadeIn 200ms ease;
+  `;
+  modal.innerHTML = `
+    <style>@keyframes fadeIn{from{opacity:0}to{opacity:1}}</style>
+    <div style="background:#161618;border:1px solid rgba(91,91,214,.35);border-radius:20px;padding:28px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6);">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:8px;">Тест после 21 заметки</div>
+      <div style="font-size:18px;font-weight:700;color:#EDEDEF;margin-bottom:8px;font-family:'Syne',sans-serif;">Тема: ${esc(topic)}</div>
+      <div style="font-size:13px;color:#8B8B9A;margin-bottom:20px;line-height:1.6;">AI сформирует 3 вопроса на основе твоих же заметок — не экзамен, а проверка реального усвоения. Отвечай голосом или текстом.</div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="document.getElementById('testModal').remove()" style="background:transparent;border:1px solid #2A2A2E;color:#8B8B9A;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Позже</button>
+        <button onclick="startTest('${esc(topic)}')" style="background:#5B5BD6;border:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;cursor:pointer;">Пройти тест</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function startTest(topic) {
+  const modal = document.getElementById('testModal');
+  if (modal) modal.remove();
+
+  const topicNotes = notes.filter(n => n.topic === topic).slice(0, 21);
+  const anchors = topicNotes.map(n => n.anchor).filter(Boolean).join('\n');
+  const insights = topicNotes.map(n => n.insight).filter(Boolean).join('\n');
+
+  const testModal = document.createElement('div');
+  testModal.id = 'testModal';
+  testModal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;`;
+  testModal.innerHTML = `
+    <div style="background:#161618;border:1px solid rgba(91,91,214,.35);border-radius:20px;padding:28px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6);">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:6px;">Тест</div>
+      <div style="font-size:16px;font-weight:600;color:#EDEDEF;margin-bottom:16px;font-family:'Syne',sans-serif;">${esc(topic)}</div>
+      <div id="testContent" style="font-size:13px;color:#8B8B9A;text-align:center;padding:20px 0;">Генерирую вопросы...</div>
+    </div>`;
+  document.body.appendChild(testModal);
+
+  let questions = [];
+  try {
+    const prompt = `На основе этих якорей и осознаний пользователя по теме "${topic}", составь РОВНО 3 вопроса для самопроверки усвоения. Вопросы должны проверять реальное понимание, не факты. Опирайся только на материалы ТП Ханта. Отвечай JSON массивом: ["вопрос1","вопрос2","вопрос3"]\n\nЯкоря:\n${anchors}\n\nОсознания:\n${insights}`;
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({model:GROQ_MODEL,temperature:0.7,max_tokens:400,messages:[
+        {role:'system',content:'Ты ассистент MindLab. Составляй вопросы строго по концепциям ТП Ханта. Отвечай только JSON.'},
+        {role:'user',content:prompt}
+      ]})
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      const raw = data.choices[0].message.content.trim();
+      const match = raw.match(/\[[\s\S]*\]/);
+      if (match) questions = JSON.parse(match[0]);
+    }
+  } catch(e) {}
+
+  if (!questions.length) questions = [
+    'Объясни своими словами главный инсайт по этой теме — без опоры на заметки.',
+    'Как это знание изменило твоё поведение или восприятие в реальной жизни?',
+    'Что ты понял об этой теме сейчас, чего не понимал в начале?'
+  ];
+
+  // Store questions globally to avoid inline JSON in onclick
+  window._testQuestions = questions;
+  window._testTopic = topic;
+
+  const content = document.getElementById('testContent');
+  if (!content) return;
+  content.innerHTML = `
+    ${questions.map((q, i) => `
+      <div style="margin-bottom:18px;">
+        <div style="font-size:11px;color:#5B5BD6;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Вопрос ${i+1}</div>
+        <div style="font-size:14px;color:#EDEDEF;margin-bottom:8px;line-height:1.6;">${esc(q)}</div>
+        <textarea id="tq-${i}" style="width:100%;min-height:70px;background:#1C1C1F;border:1px solid #2A2A2E;border-radius:8px;color:#EDEDEF;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;outline:none;resize:none;" placeholder="Твой ответ..."></textarea>
+      </div>`).join('')}
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;border-top:1px solid #2A2A2E;padding-top:16px;">
+      <button onclick="document.getElementById('testModal').remove()" style="background:transparent;border:1px solid #2A2A2E;color:#8B8B9A;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Закрыть</button>
+      <button onclick="saveTestResult()" style="background:#5B5BD6;border:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;cursor:pointer;">Сохранить ответы</button>
+    </div>`;
+}
+
+function saveTestResult() {
+  const questions = window._testQuestions || [];
+  const topic = window._testTopic || '';
+  const answers = questions.map((q, i) => ({
+    q, a: document.getElementById('tq-'+i)?.value?.trim() || ''
+  }));
+  const tests = JSON.parse(localStorage.getItem('ml_tests') || '[]');
+  tests.unshift({ topic, date: Date.now(), qa: answers });
+  localStorage.setItem('ml_tests', JSON.stringify(tests));
+  document.getElementById('testModal')?.remove();
+  toast('Ответы сохранены ✓');
+}
+
+// ── Progress stats ─────────────────────────────────────
+function renderProgress() {
+  const modal = document.createElement('div');
+  modal.id = 'progressModal';
+  modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;`;
+
+  const total = notes.length;
+  const totalTheses = theses.length;
+  const livedTheses = theses.filter(t => t.status === 'lived').length;
+  const understoodTheses = theses.filter(t => t.status === 'understood').length;
+
+  // Top topics
+  const topicMap = {};
+  notes.forEach(n => { const k = n.topic||'Без темы'; topicMap[k] = (topicMap[k]||0)+1; });
+  const topTopics = Object.entries(topicMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  // Monthly
+  const monthMap = {};
+  notes.forEach(n => {
+    const d = new Date(parseInt(n.id));
+    if (isNaN(d)) return;
+    const key = d.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+    monthMap[key] = (monthMap[key]||0)+1;
+  });
+  const months = Object.entries(monthMap).slice(-4);
+  const maxM = Math.max(...months.map(m=>m[1]),1);
+
+  modal.innerHTML = `
+    <div style="background:#161618;border:1px solid #2A2A2E;border-radius:20px;padding:28px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+        <div>
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:4px;">Второй мозг</div>
+          <div style="font-size:20px;font-weight:700;color:#EDEDEF;font-family:'Syne',sans-serif;">Прогресс</div>
+        </div>
+        <button onclick="document.getElementById('progressModal').remove()" style="background:transparent;border:none;color:#555560;font-size:22px;cursor:pointer;line-height:1;">×</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px;">
+        <div style="background:#1C1C1F;border:1px solid #2A2A2E;border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#5B5BD6;font-family:'Syne',sans-serif;">${total}</div>
+          <div style="font-size:11px;color:#8B8B9A;margin-top:3px;">заметок</div>
+        </div>
+        <div style="background:#1C1C1F;border:1px solid #2A2A2E;border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#10B981;font-family:'Syne',sans-serif;">${livedTheses}</div>
+          <div style="font-size:11px;color:#8B8B9A;margin-top:3px;">тезисов прожито</div>
+        </div>
+        <div style="background:#1C1C1F;border:1px solid #2A2A2E;border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#F59E0B;font-family:'Syne',sans-serif;">${totalTheses}</div>
+          <div style="font-size:11px;color:#8B8B9A;margin-top:3px;">тезисов всего</div>
+        </div>
+      </div>
+
+      ${months.length ? `
+      <div style="margin-bottom:22px;">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#555560;margin-bottom:12px;">По месяцам</div>
+        ${months.map(([m,c])=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="font-size:12px;color:#8B8B9A;width:120px;flex-shrink:0;">${m}</div>
+            <div style="flex:1;background:#1C1C1F;border-radius:4px;height:8px;overflow:hidden;">
+              <div style="background:#5B5BD6;height:100%;border-radius:4px;width:${Math.round(c/maxM*100)}%;transition:width 600ms ease;"></div>
+            </div>
+            <div style="font-size:12px;color:#5B5BD6;font-weight:600;width:24px;text-align:right;">${c}</div>
+          </div>`).join('')}
+      </div>` : ''}
+
+      ${topTopics.length ? `
+      <div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#555560;margin-bottom:12px;">Топ тем</div>
+        ${topTopics.map(([t,c],i)=>`
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="font-size:11px;color:#555560;width:16px;">${i+1}</div>
+            <div style="flex:1;font-size:13px;color:#EDEDEF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(t)}</div>
+            <div style="font-size:12px;color:#8B8B9A;">${c} зам.</div>
+          </div>`).join('')}
+      </div>` : ''}
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+// ── Render blocks ─────────────────────────────────────
+const BLOCKS = [
+  { key:'meaning',     label:'Смысл'         },
+  { key:'connection',  label:'Связь с собой'  },
+  { key:'insight',     label:'Осознание'      },
+  { key:'anchor',      label:'Якорь'          },
+  { key:'integration', label:'Интеграция'     },
+  { key:'neuro',       label:'Нейроконтур'    },
+];
+
+function renderBlocks(r, topic, sphere) {
+  const wrap = document.getElementById('blocks');
+  wrap.innerHTML = '';
+  document.getElementById('resMeta').textContent = `${topic} · ${sphere}`;
+  document.getElementById('results').classList.add('show');
+
+  BLOCKS.forEach((b, i) => {
+    const div = document.createElement('div');
+    div.className = 'block';
+    div.dataset.b = b.key;
+    div.innerHTML = `
+      <div class="block-top">
+        <span class="block-label">${b.label}</span>
+        <div style="display:flex;align-items:center;gap:2px;">
+          <button class="btn-edit-block" data-key="${b.key}" title="Редактировать">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Изменить
+          </button>
+          <button class="btn-rewrite" data-key="${b.key}" title="Переформулировать через ТП" style="background:transparent;border:none;color:var(--text-3);font-family:'DM Sans',sans-serif;font-size:11px;padding:2px 7px;border-radius:5px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all 140ms var(--ease);" onmouseover="this.style.color='var(--accent)';this.style.background='var(--surface-2)'" onmouseout="this.style.color='var(--text-3)';this.style.background='transparent'">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+            ТП
+          </button>
+          <button class="btn-copy" data-content="${esc(r[b.key])}">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Копировать
+          </button>
+        </div>
+      </div>
+      <div class="block-text">${esc(r[b.key])}</div>
+      <div class="block-edit-area">
+        <textarea rows="4">${esc(r[b.key])}</textarea>
+        <div class="block-edit-actions">
+          <button class="btn-cancel-block" data-key="${b.key}">Отмена</button>
+          <button class="btn-save-block" data-key="${b.key}">Сохранить</button>
+        </div>
+      </div>
+    `;
+    wrap.appendChild(div);
+    setTimeout(() => div.classList.add('in'), 60 + i * 110);
+  });
+}
+
+// ── Rewrite block via TP ──────────────────────────────
+async function rewriteBlock(blockEl, key) {
+  const textEl = blockEl.querySelector('.block-text');
+  const currentText = textEl.textContent.trim();
+  const src = currentResult?.text || '';
+  const orig = textEl.innerHTML;
+  textEl.innerHTML = '<span style="color:var(--text-3);font-size:13px;">Переформулирую через ТП...</span>';
+
+  try {
+    const prompt = `Пользователь записал инсайт: "${src}"\n\nТекущий блок "${key}": "${currentText}"\n\nПереформулируй этот блок строго через концепции и язык ТП Ханта. Отвечай только текстом блока, без JSON, без пояснений.`;
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({model:GROQ_MODEL,temperature:0.6,max_tokens:300,messages:[
+        {role:'system',content:'Ты ассистент MindLab. Переформулируй блок анализа строго по методологии ТП Ханта. Используй только концепции из базы знаний. Отвечай только текстом, без JSON.'},
+        {role:'user',content:prompt}
+      ]})
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      const newText = data.choices[0].message.content.trim();
+      textEl.textContent = newText;
+      if (currentResult?.r) currentResult.r[key] = newText;
+      // Update copy button
+      const copyBtn = blockEl.querySelector('.btn-copy');
+      if (copyBtn) copyBtn.dataset.content = esc(newText);
+      toast('Блок переформулирован через ТП ✓');
+    } else {
+      textEl.innerHTML = orig;
+      toast('Ошибка — попробуй ещё раз');
+    }
+  } catch(e) {
+    textEl.innerHTML = orig;
+    toast('Ошибка соединения');
+  }
+}
+
+// ── Copy + Edit ──────────────────────────────────────
+document.getElementById('blocks').addEventListener('click', e => {
+  // Rewrite via TP
+  const rewriteBtn = e.target.closest('.btn-rewrite');
+  if (rewriteBtn) {
+    const block = rewriteBtn.closest('.block');
+    const key = rewriteBtn.dataset.key;
+    rewriteBlock(block, key);
+    return;
+  }
+
+  // Copy
+  const copyBtn = e.target.closest('.btn-copy');
+  if (copyBtn) {
+    const content = copyBtn.dataset.content.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+    navigator.clipboard.writeText(content).then(() => {
+      const orig = copyBtn.innerHTML;
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = '✓ Скопировано';
+      setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.innerHTML = orig; }, 1800);
+    });
+    return;
+  }
+
+  // Edit — enter mode
+  const editBtn = e.target.closest('.btn-edit-block');
+  if (editBtn) {
+    const block = editBtn.closest('.block');
+    const key = editBtn.dataset.key;
+    const isEditing = block.classList.contains('editing');
+    if (isEditing) {
+      // Toggle off — cancel
+      block.classList.remove('editing');
+    } else {
+      block.classList.add('editing');
+      block.querySelector('.block-edit-area textarea').focus();
+    }
+    return;
+  }
+
+  // Cancel
+  const cancelBtn = e.target.closest('.btn-cancel-block');
+  if (cancelBtn) {
+    const block = cancelBtn.closest('.block');
+    const key = cancelBtn.dataset.key;
+    // Restore original text in textarea
+    const originalText = block.querySelector('.block-text').textContent;
+    block.querySelector('.block-edit-area textarea').value = originalText;
+    block.classList.remove('editing');
+    return;
+  }
+
+  // Save
+  const saveBtn = e.target.closest('.btn-save-block');
+  if (saveBtn) {
+    const block = saveBtn.closest('.block');
+    const key = saveBtn.dataset.key;
+    const newText = block.querySelector('.block-edit-area textarea').value.trim();
+    if (!newText) return;
+
+    // Update display
+    block.querySelector('.block-text').textContent = newText;
+    // Update copy button data
+    const copyBtnInBlock = block.querySelector('.btn-copy');
+    if (copyBtnInBlock) copyBtnInBlock.dataset.content = esc(newText);
+    block.classList.remove('editing');
+
+    // Update currentResult
+    if (currentResult && currentResult.r) currentResult.r[key] = newText;
+
+    // Update note in localStorage
+    if (currentResult && currentResult.id) {
+      const idx = notes.findIndex(n => n.id === currentResult.id);
+      if (idx !== -1) {
+        notes[idx][key] = newText;
+        localStorage.setItem('ml_notes', JSON.stringify(notes));
+        if (key === 'anchor') renderNotes();
+      }
+    }
+    toast('Блок сохранён');
+    return;
+  }
+});
+
+document.getElementById('btnCopyAll').addEventListener('click', () => {
+  if (!currentResult) return;
+  const { r, topic, sphere } = currentResult;
+  const out = BLOCKS.map(b => `${b.label.toUpperCase()}:\n${r[b.key]}`).join('\n\n');
+  navigator.clipboard.writeText(`Тема: ${topic}\nСфера: ${sphere}\n\n${out}`).then(() => toast('Весь анализ скопирован'));
+});
+
+// ── Library ───────────────────────────────────────────
+document.getElementById('btnLib').addEventListener('click', () => {
+  const lib = document.getElementById('library');
+  const btn = document.getElementById('btnLib');
+  const open = lib.classList.toggle('show');
+  btn.classList.toggle('active', open);
+  if (open) renderNotes();
+});
+
+document.getElementById('pills').addEventListener('click', e => {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  pill.classList.add('on');
+  activeSphere = pill.dataset.s;
+  renderNotes();
+});
+
+function renderNotes() {
+  const wrap = document.getElementById('notesList');
+  const list = activeSphere === 'all' ? notes : notes.filter(n => n.sphere === activeSphere);
+
+  if (!list.length) {
+    wrap.innerHTML = `
+      <div class="empty">
+        <div class="empty-sym">◎</div>
+        <p>Пока нет заметок — создай первую</p>
+      </div>`;
+    return;
+  }
+
+  // Group by topic
+  const groups = {};
+  list.forEach(n => {
+    const key = n.topic || 'Без темы';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(n);
+  });
+
+  wrap.innerHTML = Object.entries(groups).map(([topic, items]) => `
+    <div class="topic-folder" id="tf-${encodeURIComponent(topic)}">
+      <div class="topic-folder-head" onclick="toggleFolder(this)">
+        <span class="topic-folder-title">${esc(topic)}</span>
+        <span class="topic-folder-count">${items.length} ${items.length === 1 ? 'заметка' : items.length < 5 ? 'заметки' : 'заметок'}</span>
+        <svg class="topic-folder-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>
+      <div class="topic-folder-body">
+        ${items.map(n => `
+          <div class="folder-note" id="fn-${n.id}">
+            <div class="folder-note-head" onclick="toggleFolderNote('${n.id}')">
+              <div class="folder-note-info">
+                <div class="folder-note-row">
+                  <span class="note-date">${n.date}</span>
+                  <span class="note-sphere">${esc(n.sphere)}</span>
+                </div>
+                <div class="folder-note-anchor">${esc(n.anchor || n.text?.slice(0,80) || '')}</div>
+              </div>
+              <div class="note-actions">
+                <button class="btn-del" data-del="${n.id}" title="Удалить">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="folder-note-body" id="fnb-${n.id}">
+              <div class="nb" style="margin-bottom:8px;">
+                <div class="nb-label">Исходная мысль</div>
+                <div class="nb-text">${esc(n.text || '')}</div>
+              </div>
+              ${BLOCKS.map(b => `
+                <div class="nb">
+                  <div class="nb-label">${b.label}</div>
+                  <div class="nb-text">${esc(n[b.key] || '')}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleFolder(head) {
+  head.closest('.topic-folder').classList.toggle('open');
+}
+
+function toggleFolderNote(id) {
+  document.getElementById('fnb-' + id)?.classList.toggle('open');
+}
+
+document.getElementById('notesList').addEventListener('click', e => {
+  // Delete
+  const del = e.target.closest('[data-del]');
+  if (del) {
+    e.stopPropagation();
+    const id = del.dataset.del;
+    notes = notes.filter(n => n.id !== id);
+    localStorage.setItem('ml_notes', JSON.stringify(notes));
+    updateCount();
+    renderNotes();
+    toast('Заметка удалена');
+    return;
+  }
+});
+
+// ── Textarea auto-resize ───────────────────────────────
+const ta = document.getElementById('textIn');
+ta.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.max(130, this.scrollHeight) + 'px';
+});
+
+// ── Enter in topic ────────────────────────────────────
+document.getElementById('topic').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); ta.focus(); }
+});
+
+// ── Analyze button ────────────────────────────────────
+document.getElementById('btnAnalyze').addEventListener('click', analyze);
+
+ta.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') analyze();
+});
+
+// ── Theses ──────────────────────────────────────────
+let theses = JSON.parse(localStorage.getItem('ml_theses') || '[]');
+let activeThesisFilter = 'all';
+
+// Migrate: ensure all theses have required fields
+theses = theses.map(t => ({
+  ...t,
+  reminders: t.reminders || [1, 3, 7, 21],
+  remindersAcknowledged: t.remindersAcknowledged || [false, false, false, false],
+}));
+
+const THESIS_TECHNIQUES = [
+  { icon: '👁', text: 'Наблюдение в моменте: когда возникнет автоматическая реакция — спроси "кто реагирует?"' },
+  { icon: '🪞', text: 'Практика "меня как кого": когда что-то волнует — "меня как кого это волнует?"' },
+  { icon: '📍', text: 'Фиксация момента: заметь конкретный момент когда тезис случился в жизни — опиши сразу голосом или текстом' },
+  { icon: '🔄', text: 'Обратный инжиниринг: возьми реакцию, пройди назад по цепочке — найди где тезис мог бы сработать' },
+  { icon: '🌌', text: 'Практика пространства: войди в ситуацию как наблюдатель — не участник, а пространство в котором происходит' },
+];
+
+function addThesis() {
+  const text = document.getElementById('thesisText').value.trim();
+  if (!text) { toast('Введи тезис'); return; }
+  const sphere = document.getElementById('thesisSphere').value;
+  const t = {
+    id: Date.now().toString(),
+    text, sphere,
+    createdAt: Date.now(),
+    status: 'new',
+    understoodAt: null,
+    livedAt: null,
+    intellectualNote: '',
+    livingNote: '',
+    reminders: [1, 3, 7, 21],
+    remindersAcknowledged: [false, false, false, false],
+  };
+  theses.unshift(t);
+  localStorage.setItem('ml_theses', JSON.stringify(theses));
+  updateThesisCount();
+  renderTheses();
+  document.getElementById('thesisText').value = '';
+  toast('Тезис добавлен');
+}
+
+function markUnderstood(id) {
+  const t = theses.find(t => t.id === id);
+  if (!t) return;
+  const noteEl = document.getElementById('un-note-' + id);
+  t.status = 'understood';
+  t.understoodAt = Date.now();
+  t.intellectualNote = noteEl ? noteEl.value.trim() : '';
+  localStorage.setItem('ml_theses', JSON.stringify(theses));
+  updateThesisCount();
+  renderTheses();
+  toast('Интеллектуальное понимание зафиксировано ✓');
+}
+
+function markLived(id) {
+  const t = theses.find(t => t.id === id);
+  if (!t) return;
+  const noteEl = document.getElementById('lv-note-' + id);
+  t.status = 'lived';
+  t.livedAt = Date.now();
+  t.livingNote = noteEl ? noteEl.value.trim() : '';
+  localStorage.setItem('ml_theses', JSON.stringify(theses));
+  updateThesisCount();
+  renderTheses();
+  toast('Тезис прожит и интегрирован! ✅');
+}
+
+function deleteThesis(id) {
+  theses = theses.filter(t => t.id !== id);
+  localStorage.setItem('ml_theses', JSON.stringify(theses));
+  updateThesisCount();
+  renderTheses();
+  toast('Тезис удалён');
+}
+
+function updateThesisCount() {
+  const active = theses.filter(t => t.status !== 'lived').length;
+  const el = document.getElementById('thesisCount');
+  if (el) el.textContent = active || theses.length;
+}
+
+function toggleThesisBody(id) {
+  document.getElementById('tb-' + id)?.classList.toggle('open');
+}
+
+function renderTheses() {
+  const wrap = document.getElementById('thesesList');
+  if (!wrap) return;
+  const list = activeThesisFilter === 'all'
+    ? theses
+    : theses.filter(t => t.status === activeThesisFilter);
+
+  if (!list.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-sym">◎</div><p>${activeThesisFilter === 'all' ? 'Тезисов пока нет — добавь первый' : 'Нет тезисов в этом статусе'}</p></div>`;
+    return;
+  }
+
+  const statusLabels = { new: 'Новый', understood: 'Понят', lived: 'Прожит' };
+  const statusIcons  = { new: '⚪', understood: '🔵', lived: '✅' };
+
+  wrap.innerHTML = list.map(t => {
+    const created    = new Date(t.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    const daysSince  = Math.floor((Date.now() - t.createdAt) / 86400000);
+    const step1Done  = t.status === 'understood' || t.status === 'lived';
+    const step2Done  = t.status === 'lived';
+    const nextDay    = t.reminders.find((d, i) => daysSince < d && !t.remindersAcknowledged[i]);
+    const remHint    = nextDay ? `<span style="font-size:11px;color:var(--accent);">⏰ через ${nextDay - daysSince} д.</span>` : '';
+
+    return `
+    <div class="thesis-card" data-status="${t.status}" id="tc-${t.id}">
+      <div class="thesis-card-head" onclick="toggleThesisBody('${t.id}')">
+        <span class="thesis-status-icon">${statusIcons[t.status]}</span>
+        <div class="thesis-card-info">
+          <div class="thesis-card-text">${esc(t.text)}</div>
+          <div class="thesis-meta-row">
+            <span class="thesis-date">${created}</span>
+            <span class="thesis-sphere-badge">${esc(t.sphere)}</span>
+            <span class="thesis-status-badge ${t.status}">${statusLabels[t.status]}</span>
+            ${daysSince > 0 ? `<span class="thesis-date">${daysSince} д.</span>` : ''}
+            ${remHint}
+          </div>
+        </div>
+      </div>
+      <div class="thesis-timeline">
+        <div class="tl-dot done"></div>
+        <div class="tl-line${step1Done ? ' done' : ''}"></div>
+        <div class="tl-dot${step1Done ? ' done' : ''}"></div>
+        <div class="tl-line${step2Done ? ' done' : ''}"></div>
+        <div class="tl-dot final${step2Done ? ' done' : ''}"></div>
+      </div>
+      <div class="tl-labels">
+        <span class="tl-label done">Добавлен</span>
+        <span class="tl-label${step1Done ? ' done' : ''}">Понят</span>
+        <span class="tl-label${step2Done ? ' done' : ''}">Прожит</span>
+      </div>
+      <div class="thesis-body" id="tb-${t.id}">
+        ${t.status === 'new' ? `
+          <div class="thesis-step-form">
+            <div class="thesis-step-label">Шаг 1 — Интеллектуальное осознание</div>
+            <textarea class="thesis-step-textarea" id="un-note-${t.id}" placeholder="Объясни тезис своими словами — как ты понимаешь это в своей жизни?"></textarea>
+            <div class="thesis-step-confirm">
+              <button class="btn-thesis-action btn-understand" onclick="markUnderstood('${t.id}')">✓ Понял интеллектуально</button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);line-height:1.7;">
+            <div style="font-weight:600;color:var(--text-2);margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Подсказки для осознания:</div>
+            ${THESIS_TECHNIQUES.slice(0,2).map(tech => `<div style="display:flex;gap:8px;margin-bottom:6px;"><span>${tech.icon}</span><span>${tech.text}</span></div>`).join('')}
+          </div>
+        ` : ''}
+        ${t.status === 'understood' ? `
+          ${t.intellectualNote ? `<div class="thesis-note-block"><div class="thesis-note-block-label">Интеллектуальное понимание</div>${esc(t.intellectualNote)}</div>` : ''}
+          <div class="thesis-techniques">
+            <div class="thesis-techniques-title">Практики для проживания (ТП Ханта)</div>
+            ${THESIS_TECHNIQUES.map(tech => `<div class="thesis-technique"><span class="thesis-tech-icon">${tech.icon}</span><span>${tech.text}</span></div>`).join('')}
+          </div>
+          <div class="thesis-step-form">
+            <div class="thesis-step-label">Шаг 2 — Проживание в жизни</div>
+            <textarea class="thesis-step-textarea" id="lv-note-${t.id}" placeholder="Опиши конкретный момент когда это случилось в жизни — что произошло, как ощущалось?"></textarea>
+            <div class="thesis-step-confirm">
+              <button class="btn-thesis-action btn-lived" onclick="markLived('${t.id}')">✅ Прожил в жизни</button>
+            </div>
+          </div>
+        ` : ''}
+        ${t.status === 'lived' ? `
+          ${t.intellectualNote ? `<div class="thesis-note-block"><div class="thesis-note-block-label">Интеллектуальное понимание</div>${esc(t.intellectualNote)}</div>` : ''}
+          ${t.livingNote ? `<div class="thesis-note-block"><div class="thesis-note-block-label">Момент проживания</div>${esc(t.livingNote)}</div>` : ''}
+          <div style="text-align:center;padding:10px 0 4px;font-size:14px;color:#10B981;font-weight:500;">✅ Тезис интегрирован на обоих уровнях</div>
+        ` : ''}
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+          <button class="btn-thesis-action btn-thesis-del" onclick="deleteThesis('${t.id}')">Удалить</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('btnTheses').addEventListener('click', () => {
+  const sec = document.getElementById('theses');
+  const btn = document.getElementById('btnTheses');
+  const open = sec.classList.toggle('show');
+  btn.classList.toggle('active', open);
+  if (open) {
+    renderTheses();
+    checkThesisReminders();
+    setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+  }
+});
+
+document.getElementById('thesisTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.thesis-tab');
+  if (!tab) return;
+  document.querySelectorAll('.thesis-tab').forEach(t => t.classList.remove('on'));
+  tab.classList.add('on');
+  activeThesisFilter = tab.dataset.status;
+  renderTheses();
+});
+
+function checkThesisReminders() {
+  const now = Date.now();
+  let changed = false;
+  const due = [];
+  theses.forEach(t => {
+    if (t.status === 'lived') return;
+    const daysSince = (now - t.createdAt) / 86400000;
+    t.reminders.forEach((day, i) => {
+      if (daysSince >= day && !t.remindersAcknowledged[i]) {
+        t.remindersAcknowledged[i] = true;
+        due.push(t);
+        changed = true;
+      }
+    });
+  });
+  if (changed) localStorage.setItem('ml_theses', JSON.stringify(theses));
+  if (due.length > 0) {
+    const sec = document.getElementById('theses');
+    const existing = sec.querySelector('.reminder-banner');
+    if (existing) existing.remove();
+    const banner = document.createElement('div');
+    banner.className = 'reminder-banner';
+    const texts = due.map(t => `«${t.text.slice(0, 40)}${t.text.length > 40 ? '…' : ''}»`).join(', ');
+    banner.innerHTML = `<span style="font-size:18px;flex-shrink:0;">⏰</span><span class="reminder-banner-text">Напоминание: ${due.length === 1 ? '1 тезис ждёт' : due.length + ' тезиса ждут'} проверки проживания — ${texts}</span><button class="reminder-banner-dismiss" onclick="this.parentElement.remove()">×</button>`;
+    sec.insertBefore(banner, sec.querySelector('.thesis-form'));
+  }
+}
+
+// ── Init ──────────────────────────────────────────────
+updateCount();
+updateThesisCount();
+</script>
+</body>
+</html>
