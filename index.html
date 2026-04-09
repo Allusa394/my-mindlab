@@ -24,9 +24,9 @@
       --border:     #2A2A2E;
       --border-2:   #222226;
       --accent:     #5B5BD6;
-      --text:       #EDEDEF;
-      --text-2:     #8B8B9A;
-      --text-3:     #55555F;
+      --text:       #F5F5F7;
+      --text-2:     #D8D8E2;
+      --text-3:     #ABABBA;
 
       --c-meaning:     #5B5BD6;
       --c-connection:  #10B981;
@@ -199,8 +199,8 @@
 
     .field-label {
       font-size: 10px;
-      font-weight: 500;
-      color: var(--text-3);
+      font-weight: 600;
+      color: var(--text);
       text-transform: uppercase;
       letter-spacing: .1em;
     }
@@ -221,7 +221,7 @@
     }
 
     input[type="text"]::placeholder,
-    textarea::placeholder { color: var(--text-3); }
+    textarea::placeholder { color: var(--text-2); }
 
     input[type="text"]:focus,
     select:focus,
@@ -257,7 +257,7 @@
       background: var(--surface-2);
       border: 1px solid var(--border-2);
       border-radius: 20px;
-      color: var(--text-2);
+      color: var(--text);
       font-size: 13px;
       padding: 6px 14px;
       cursor: pointer;
@@ -363,7 +363,7 @@
       margin-bottom: 14px;
     }
 
-    .results-meta { font-size: 12px; color: var(--text-3); }
+    .results-meta { font-size: 12px; color: var(--text-2); }
 
     .btn-ghost {
       display: inline-flex;
@@ -651,7 +651,7 @@
       flex-wrap: wrap;
     }
 
-    .note-date { font-size: 11px; color: var(--text-3); }
+    .note-date { font-size: 11px; color: var(--text-2); }
 
     .note-sphere {
       font-size: 10px;
@@ -708,13 +708,13 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .1em;
-      color: var(--text-3);
+      color: var(--text-2);
       margin-bottom: 3px;
     }
 
     .nb-text {
       font-size: 13px;
-      color: var(--text-2);
+      color: var(--text);
       line-height: 1.6;
     }
 
@@ -747,14 +747,14 @@
 
     .topic-folder-count {
       font-size: 11px;
-      color: var(--text-3);
+      color: var(--text-2);
       background: rgba(91,91,214,.1);
       border-radius: 10px;
       padding: 2px 9px;
     }
 
     .topic-folder-chevron {
-      color: var(--text-3);
+      color: #A78BFA;
       transition: transform 200ms var(--ease);
       flex-shrink: 0;
     }
@@ -793,14 +793,24 @@
     }
 
     .folder-note-anchor {
-      font-size: 12px;
-      color: var(--text-2);
+      font-size: 14px;
+      color: var(--text);
       font-style: italic;
       flex: 1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    .folder-note-chevron {
+      font-size: 20px;
+      color: #A78BFA;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+      margin-top: 0px;
+    }
+    .folder-note-body.open ~ * .folder-note-chevron,
+    .folder-note-head.open-note .folder-note-chevron { transform: rotate(180deg); }
 
     .folder-note-body {
       display: none;
@@ -1006,7 +1016,7 @@
       gap: 7px;
       flex-wrap: wrap;
     }
-    .thesis-date { font-size: 11px; color: var(--text-3); }
+    .thesis-date { font-size: 11px; color: var(--text-2); }
     .thesis-sphere-badge {
       font-size: 10px;
       font-weight: 500;
@@ -1058,13 +1068,13 @@
     }
     .tl-label {
       font-size: 10px;
-      color: var(--text-3);
+      color: var(--text-2);
       flex: 1;
       text-align: center;
     }
     .tl-label:first-child { text-align: left; }
     .tl-label:last-child  { text-align: right; }
-    .tl-label.done { color: var(--text-2); }
+    .tl-label.done { color: var(--text); }
 
     /* Thesis body */
     .thesis-body {
@@ -1084,7 +1094,7 @@
     .thesis-step-label {
       font-size: 11px;
       font-weight: 600;
-      color: var(--text-3);
+      color: var(--text-2);
       text-transform: uppercase;
       letter-spacing: .08em;
       margin-bottom: 8px;
@@ -1119,7 +1129,7 @@
     .thesis-techniques-title {
       font-size: 11px;
       font-weight: 600;
-      color: var(--text-2);
+      color: var(--text);
       text-transform: uppercase;
       letter-spacing: .08em;
       margin-bottom: 10px;
@@ -1129,7 +1139,7 @@
       gap: 8px;
       margin-bottom: 8px;
       font-size: 13px;
-      color: var(--text-2);
+      color: var(--text);
       line-height: 1.5;
     }
     .thesis-technique:last-child { margin-bottom: 0; }
@@ -1173,13 +1183,13 @@
       padding: 10px 12px;
       margin-bottom: 10px;
       font-size: 13px;
-      color: var(--text-2);
+      color: var(--text);
       line-height: 1.6;
     }
     .thesis-note-block-label {
       font-size: 10px;
       font-weight: 600;
-      color: var(--text-3);
+      color: var(--text-2);
       text-transform: uppercase;
       letter-spacing: .08em;
       margin-bottom: 5px;
@@ -1467,7 +1477,7 @@
       </div>
       <textarea id="textIn" placeholder="Нажми «Говорить» и скажи свою мысль — или напечатай текст..."></textarea>
       <div class="mic-status" id="micStatus"></div>
-      <button id="btnClearText" onclick="clearInput()" style="display:block;background:none;border:none;color:var(--c-muted);font-size:12px;cursor:pointer;padding:4px 0;text-align:left;opacity:0.6;">✕ Очистить поле</button>
+      <button id="btnClearText" onclick="clearInput()" style="display:block;background:none;border:none;color:var(--text-2);font-size:12px;cursor:pointer;padding:4px 0;text-align:left;">✕ Очистить поле</button>
     </div>
 
     <button class="btn-analyze" id="btnAnalyze">Анализировать</button>
@@ -1512,8 +1522,8 @@
     <div class="lib-header">
       <div class="lib-title">Библиотека заметок</div>
     </div>
-    <div style="font-size:12px;color:#555560;margin-bottom:16px;line-height:1.7;">
-      Заметки группируются по <strong style="color:#8B8B9A;">темам</strong> — папки открываются по нажатию. Фильтруй по <strong style="color:#8B8B9A;">сфере</strong> через кнопки ниже. Нажми на счётчик заметок вверху чтобы увидеть <strong style="color:#5B5BD6;">прогресс второго мозга</strong>.
+    <div style="font-size:12px;color:#ABABBA;margin-bottom:16px;line-height:1.7;">
+      Заметки группируются по <strong style="color:#D8D8E2;">темам</strong> — папки открываются по нажатию. Фильтруй по <strong style="color:#D8D8E2;">сфере</strong> через кнопки ниже. Нажми на счётчик заметок вверху чтобы увидеть <strong style="color:#5B5BD6;">прогресс второго мозга</strong>.
     </div>
 
     <div class="pills" id="pills">
@@ -2249,9 +2259,9 @@ function showMilestoneBanner(topic, count, text) {
       <div style="flex:1;">
         <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:4px;">${subtitle}</div>
         <div style="font-size:14px;font-weight:600;color:#EDEDEF;margin-bottom:8px;">${title}</div>
-        <div style="font-size:13px;color:#8B8B9A;line-height:1.65;">${text}</div>
+        <div style="font-size:13px;color:#D8D8E2;line-height:1.65;">${text}</div>
       </div>
-      <button onclick="document.getElementById('milestoneBanner').remove()" style="background:transparent;border:none;color:#555560;cursor:pointer;font-size:20px;line-height:1;padding:2px;flex-shrink:0;">×</button>
+      <button onclick="document.getElementById('milestoneBanner').remove()" style="background:transparent;border:none;color:#ABABBA;cursor:pointer;font-size:20px;line-height:1;padding:2px;flex-shrink:0;">×</button>
     </div>
   `;
 
@@ -2281,9 +2291,9 @@ async function showTestOffer(topic, topicNotes) {
     <div style="background:#161618;border:1px solid rgba(91,91,214,.35);border-radius:20px;padding:28px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6);">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:8px;">Тест после 21 заметки</div>
       <div style="font-size:18px;font-weight:700;color:#EDEDEF;margin-bottom:8px;font-family:'Syne',sans-serif;">Тема: ${esc(topic)}</div>
-      <div style="font-size:13px;color:#8B8B9A;margin-bottom:20px;line-height:1.6;">AI сформирует 3 вопроса на основе твоих же заметок — не экзамен, а проверка реального усвоения. Отвечай голосом или текстом.</div>
+      <div style="font-size:13px;color:#D8D8E2;margin-bottom:20px;line-height:1.6;">AI сформирует 3 вопроса на основе твоих же заметок — не экзамен, а проверка реального усвоения. Отвечай голосом или текстом.</div>
       <div style="display:flex;gap:10px;justify-content:flex-end;">
-        <button onclick="document.getElementById('testModal').remove()" style="background:transparent;border:1px solid #2A2A2E;color:#8B8B9A;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Позже</button>
+        <button onclick="document.getElementById('testModal').remove()" style="background:transparent;border:1px solid #2A2A2E;color:#D8D8E2;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Позже</button>
         <button onclick="startTest('${esc(topic)}')" style="background:#5B5BD6;border:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;cursor:pointer;">Пройти тест</button>
       </div>
     </div>`;
@@ -2305,7 +2315,7 @@ async function startTest(topic) {
     <div style="background:#161618;border:1px solid rgba(91,91,214,.35);border-radius:20px;padding:28px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6);">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:6px;">Тест</div>
       <div style="font-size:16px;font-weight:600;color:#EDEDEF;margin-bottom:16px;font-family:'Syne',sans-serif;">${esc(topic)}</div>
-      <div id="testContent" style="font-size:13px;color:#8B8B9A;text-align:center;padding:20px 0;">Генерирую вопросы...</div>
+      <div id="testContent" style="font-size:13px;color:#D8D8E2;text-align:center;padding:20px 0;">Генерирую вопросы...</div>
     </div>`;
   document.body.appendChild(testModal);
 
@@ -2348,7 +2358,7 @@ async function startTest(topic) {
         <textarea id="tq-${i}" style="width:100%;min-height:70px;background:#1C1C1F;border:1px solid #2A2A2E;border-radius:8px;color:#EDEDEF;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;outline:none;resize:none;" placeholder="Твой ответ..."></textarea>
       </div>`).join('')}
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;border-top:1px solid #2A2A2E;padding-top:16px;">
-      <button onclick="document.getElementById('testModal').remove()" style="background:transparent;border:1px solid #2A2A2E;color:#8B8B9A;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Закрыть</button>
+      <button onclick="document.getElementById('testModal').remove()" style="background:transparent;border:1px solid #2A2A2E;color:#D8D8E2;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:8px;cursor:pointer;">Закрыть</button>
       <button onclick="saveTestResult()" style="background:#5B5BD6;border:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border-radius:8px;cursor:pointer;">Сохранить ответы</button>
     </div>`;
 }
@@ -2400,30 +2410,30 @@ function renderProgress() {
           <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#5B5BD6;margin-bottom:4px;">Второй мозг</div>
           <div style="font-size:20px;font-weight:700;color:#EDEDEF;font-family:'Syne',sans-serif;">Прогресс</div>
         </div>
-        <button onclick="document.getElementById('progressModal').remove()" style="background:transparent;border:none;color:#555560;font-size:22px;cursor:pointer;line-height:1;">×</button>
+        <button onclick="document.getElementById('progressModal').remove()" style="background:transparent;border:none;color:#ABABBA;font-size:22px;cursor:pointer;line-height:1;">×</button>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px;">
         <div style="background:#1C1C1F;border:1px solid #2A2A2E;border-radius:12px;padding:14px;text-align:center;">
           <div style="font-size:28px;font-weight:700;color:#5B5BD6;font-family:'Syne',sans-serif;">${total}</div>
-          <div style="font-size:11px;color:#8B8B9A;margin-top:3px;">заметок</div>
+          <div style="font-size:11px;color:#D8D8E2;margin-top:3px;">заметок</div>
         </div>
         <div style="background:#1C1C1F;border:1px solid #2A2A2E;border-radius:12px;padding:14px;text-align:center;">
           <div style="font-size:28px;font-weight:700;color:#10B981;font-family:'Syne',sans-serif;">${livedTheses}</div>
-          <div style="font-size:11px;color:#8B8B9A;margin-top:3px;">тезисов прожито</div>
+          <div style="font-size:11px;color:#D8D8E2;margin-top:3px;">тезисов прожито</div>
         </div>
         <div style="background:#1C1C1F;border:1px solid #2A2A2E;border-radius:12px;padding:14px;text-align:center;">
           <div style="font-size:28px;font-weight:700;color:#F59E0B;font-family:'Syne',sans-serif;">${totalTheses}</div>
-          <div style="font-size:11px;color:#8B8B9A;margin-top:3px;">тезисов всего</div>
+          <div style="font-size:11px;color:#D8D8E2;margin-top:3px;">тезисов всего</div>
         </div>
       </div>
 
       ${months.length ? `
       <div style="margin-bottom:22px;">
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#555560;margin-bottom:12px;">По месяцам</div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#ABABBA;margin-bottom:12px;">По месяцам</div>
         ${months.map(([m,c])=>`
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="font-size:12px;color:#8B8B9A;width:120px;flex-shrink:0;">${m}</div>
+            <div style="font-size:12px;color:#D8D8E2;width:120px;flex-shrink:0;">${m}</div>
             <div style="flex:1;background:#1C1C1F;border-radius:4px;height:8px;overflow:hidden;">
               <div style="background:#5B5BD6;height:100%;border-radius:4px;width:${Math.round(c/maxM*100)}%;transition:width 600ms ease;"></div>
             </div>
@@ -2433,12 +2443,12 @@ function renderProgress() {
 
       ${topTopics.length ? `
       <div>
-        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#555560;margin-bottom:12px;">Топ тем</div>
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#ABABBA;margin-bottom:12px;">Топ тем</div>
         ${topTopics.map(([t,c],i)=>`
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="font-size:11px;color:#555560;width:16px;">${i+1}</div>
+            <div style="font-size:11px;color:#ABABBA;width:16px;">${i+1}</div>
             <div style="flex:1;font-size:13px;color:#EDEDEF;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(t)}</div>
-            <div style="font-size:12px;color:#8B8B9A;">${c} зам.</div>
+            <div style="font-size:12px;color:#D8D8E2;">${c} зам.</div>
           </div>`).join('')}
       </div>` : ''}
     </div>`;
@@ -2671,7 +2681,7 @@ function renderNotes() {
   });
 
   wrap.innerHTML = Object.entries(groups).map(([topic, items]) => `
-    <div class="topic-folder" id="tf-${encodeURIComponent(topic)}">
+    <div class="topic-folder open" id="tf-${encodeURIComponent(topic)}">
       <div class="topic-folder-head" onclick="toggleFolder(this)">
         <span class="topic-folder-title">${esc(topic)}</span>
         <span class="topic-folder-count">${items.length} ${items.length === 1 ? 'заметка' : items.length < 5 ? 'заметки' : 'заметок'}</span>
@@ -2682,7 +2692,7 @@ function renderNotes() {
       <div class="topic-folder-body">
         ${items.map(n => `
           <div class="folder-note" id="fn-${n.id}">
-            <div class="folder-note-head" onclick="toggleFolderNote('${n.id}')">
+            <div class="folder-note-head" id="fnh-${n.id}" onclick="toggleFolderNote('${n.id}')">
               <div class="folder-note-info">
                 <div class="folder-note-row">
                   <span class="note-date">${n.date}</span>
@@ -2690,6 +2700,7 @@ function renderNotes() {
                 </div>
                 <div class="folder-note-anchor">${esc(n.anchor || n.text?.slice(0,80) || '')}</div>
               </div>
+              <span class="folder-note-chevron" id="fnc-${n.id}">▼</span>
               <div class="note-actions">
                 <button class="btn-del" data-del="${n.id}" title="Удалить">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2722,7 +2733,11 @@ function toggleFolder(head) {
 }
 
 function toggleFolderNote(id) {
-  document.getElementById('fnb-' + id)?.classList.toggle('open');
+  const body = document.getElementById('fnb-' + id);
+  const chevron = document.getElementById('fnc-' + id);
+  if (!body) return;
+  const isOpen = body.classList.toggle('open');
+  if (chevron) chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
 }
 
 document.getElementById('notesList').addEventListener('click', e => {
@@ -2812,7 +2827,7 @@ function markUnderstood(id) {
   t.intellectualNote = noteEl ? noteEl.value.trim() : '';
   localStorage.setItem('ml_theses', JSON.stringify(theses));
   updateThesisCount();
-  renderTheses();
+  updateThesisCard(id);
   toast('Интеллектуальное понимание зафиксировано ✓');
 }
 
@@ -2825,8 +2840,71 @@ function markLived(id) {
   t.livingNote = noteEl ? noteEl.value.trim() : '';
   localStorage.setItem('ml_theses', JSON.stringify(theses));
   updateThesisCount();
-  renderTheses();
+  updateThesisCard(id);
   toast('Тезис прожит и интегрирован! ✅');
+}
+
+function updateThesisCard(id) {
+  const t = theses.find(t => t.id === id);
+  if (!t) return;
+  const card = document.getElementById('tc-' + id);
+  if (!card) return;
+
+  const step1Done = t.status === 'understood' || t.status === 'lived';
+  const step2Done = t.status === 'lived';
+  const statusLabels = { new: 'Новый', understood: 'Понят', lived: 'Прожит' };
+  const statusIcons  = { new: '⚪', understood: '🔵', lived: '✅' };
+
+  // обновляем data-status и иконку
+  card.dataset.status = t.status;
+  card.querySelector('.thesis-status-icon').textContent = statusIcons[t.status];
+  card.querySelector('.thesis-status-badge').className = `thesis-status-badge ${t.status}`;
+  card.querySelector('.thesis-status-badge').textContent = statusLabels[t.status];
+
+  // обновляем шкалу
+  const dots = card.querySelectorAll('.tl-dot');
+  const lines = card.querySelectorAll('.tl-line');
+  const labels = card.querySelectorAll('.tl-label');
+  if (dots[1]) dots[1].className = `tl-dot${step1Done ? ' done' : ''}`;
+  if (dots[2]) dots[2].className = `tl-dot final${step2Done ? ' done' : ''}`;
+  if (lines[0]) lines[0].className = `tl-line${step1Done ? ' done' : ''}`;
+  if (lines[1]) lines[1].className = `tl-line${step2Done ? ' done' : ''}`;
+  if (labels[1]) labels[1].className = `tl-label${step1Done ? ' done' : ''}`;
+  if (labels[2]) labels[2].className = `tl-label${step2Done ? ' done' : ''}`;
+
+  // обновляем тело карточки
+  const body = document.getElementById('tb-' + id);
+  if (body) {
+    const THESIS_TECHNIQUES_HTML = THESIS_TECHNIQUES.map(tech =>
+      `<div class="thesis-technique"><span class="thesis-tech-icon">${tech.icon}</span><span>${tech.text}</span></div>`
+    ).join('');
+    if (t.status === 'understood') {
+      body.innerHTML = `
+        ${t.intellectualNote ? `<div class="thesis-note-block"><div class="thesis-note-block-label">Интеллектуальное понимание</div>${esc(t.intellectualNote)}</div>` : ''}
+        <div class="thesis-techniques">
+          <div class="thesis-techniques-title">Практики для проживания (ТП Ханта)</div>
+          ${THESIS_TECHNIQUES_HTML}
+        </div>
+        <div class="thesis-step-form">
+          <div class="thesis-step-label">Шаг 2 — Проживание в жизни</div>
+          <textarea class="thesis-step-textarea" id="lv-note-${id}" placeholder="Опиши конкретный момент когда это случилось в жизни — что произошло, как ощущалось?"></textarea>
+          <div class="thesis-step-confirm">
+            <button class="btn-thesis-action btn-lived" onclick="markLived('${id}')">✅ Прожил в жизни</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+          <button class="btn-thesis-action btn-thesis-del" onclick="deleteThesis('${id}')">Удалить</button>
+        </div>`;
+    } else if (t.status === 'lived') {
+      body.innerHTML = `
+        ${t.intellectualNote ? `<div class="thesis-note-block"><div class="thesis-note-block-label">Интеллектуальное понимание</div>${esc(t.intellectualNote)}</div>` : ''}
+        ${t.livingNote ? `<div class="thesis-note-block"><div class="thesis-note-block-label">Момент проживания</div>${esc(t.livingNote)}</div>` : ''}
+        <div style="text-align:center;padding:12px 0;color:#10B981;font-weight:600;">✅ Тезис полностью интегрирован</div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+          <button class="btn-thesis-action btn-thesis-del" onclick="deleteThesis('${id}')">Удалить</button>
+        </div>`;
+    }
+  }
 }
 
 function deleteThesis(id) {
@@ -2847,9 +2925,15 @@ function toggleThesisBody(id) {
   document.getElementById('tb-' + id)?.classList.toggle('open');
 }
 
-function renderTheses() {
+function renderTheses(openId) {
   const wrap = document.getElementById('thesesList');
   if (!wrap) return;
+  // сохраняем уже открытые карточки
+  const currentlyOpen = new Set(
+    [...document.querySelectorAll('.thesis-body.open')].map(el => el.id.replace('tb-', ''))
+  );
+  if (openId) currentlyOpen.add(openId);
+
   const list = activeThesisFilter === 'all'
     ? theses
     : theses.filter(t => t.status === activeThesisFilter);
@@ -2897,6 +2981,12 @@ function renderTheses() {
         <span class="tl-label${step1Done ? ' done' : ''}">Понят</span>
         <span class="tl-label${step2Done ? ' done' : ''}">Прожит</span>
       </div>
+      <div style="display:flex;gap:8px;padding:0 18px 14px;">
+        ${!step1Done ? `<button class="btn-thesis-action btn-understand" style="flex:1;" onclick="event.stopPropagation();markUnderstood('${t.id}')">🔵 Понял</button>` : ''}
+        ${!step2Done ? `<button class="btn-thesis-action btn-lived" style="flex:1;" onclick="event.stopPropagation();markLived('${t.id}')">✅ Прожил</button>` : ''}
+        ${step2Done ? `<div style="flex:1;text-align:center;font-size:13px;color:#10B981;padding:6px 0;">✅ Полностью интегрирован</div>` : ''}
+        <button class="btn-thesis-action btn-thesis-del" onclick="event.stopPropagation();deleteThesis('${t.id}')">🗑</button>
+      </div>
       <div class="thesis-body" id="tb-${t.id}">
         ${t.status === 'new' ? `
           <div class="thesis-step-form">
@@ -2936,6 +3026,15 @@ function renderTheses() {
       </div>
     </div>`;
   }).join('');
+
+  // восстанавливаем открытые карточки
+  currentlyOpen.forEach(id => {
+    const el = document.getElementById('tb-' + id);
+    if (el) {
+      el.classList.add('open');
+      if (id === openId) el.closest('.thesis-card')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
 }
 
 document.getElementById('btnTheses').addEventListener('click', () => {
