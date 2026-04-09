@@ -719,6 +719,58 @@
       line-height: 1.6;
     }
 
+    /* ─── Note status ─── */
+    .note-status-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: 8px; flex-shrink: 0; white-space: nowrap;
+    }
+    .note-status-badge.new        { background: rgba(255,255,255,.06); color: var(--text-3); }
+    .note-status-badge.understood { background: rgba(91,91,214,.15);   color: var(--accent); }
+    .note-status-badge.lived      { background: rgba(16,185,129,.15);  color: #10B981; }
+    .note-status-badge.archive    { background: rgba(255,255,255,.04); color: var(--text-3); }
+
+    .note-status-actions {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-note-status {
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid;
+      transition: all 160ms var(--ease);
+    }
+    .btn-ns-understood { background: rgba(91,91,214,.1); border-color: rgba(91,91,214,.3); color: var(--accent); }
+    .btn-ns-understood:hover { background: rgba(91,91,214,.2); border-color: var(--accent); }
+    .btn-ns-lived      { background: rgba(16,185,129,.1); border-color: rgba(16,185,129,.3); color: #10B981; }
+    .btn-ns-lived:hover { background: rgba(16,185,129,.2); border-color: #10B981; }
+    .btn-ns-archive    { background: transparent; border-color: var(--border); color: var(--text-3); }
+    .btn-ns-archive:hover { background: rgba(255,255,255,.04); }
+
+    .folder-progress {
+      display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2);
+    }
+    .fp-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .fp-dot.new        { background: var(--text-3); }
+    .fp-dot.understood { background: var(--accent); }
+    .fp-dot.lived      { background: #10B981; }
+
+    .btn-evolution {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+      padding: 4px 10px; border-radius: 8px; cursor: pointer;
+      background: rgba(91,91,214,.1); border: 1px solid rgba(91,91,214,.3);
+      color: var(--accent); transition: all 160ms var(--ease); white-space: nowrap;
+    }
+    .btn-evolution:hover { background: rgba(91,91,214,.2); border-color: var(--accent); }
+
+    .evolution-result {
+      margin: 0 18px 16px; padding: 14px 16px;
+      background: rgba(91,91,214,.08); border: 1px solid rgba(91,91,214,.2);
+      border-radius: 10px; font-size: 13px; color: var(--text); line-height: 1.7;
+    }
+    .evolution-result-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--accent); margin-bottom: 8px;
+    }
+
     /* ─── Topic folders ─── */
     .topic-folder {
       margin-bottom: 10px;
@@ -1522,6 +1574,7 @@
 
     <div class="pills" id="pills">
       <button class="pill on" data-s="all">Все</button>
+      <button class="pill" data-s="__archive__">📦 Архив</button>
       <button class="pill" data-s="Мышление">🧠 Мышление</button>
       <button class="pill" data-s="Сознание">👁 Сознание</button>
       <button class="pill" data-s="Деньги">💰 Деньги</button>
@@ -2653,20 +2706,25 @@ document.getElementById('pills').addEventListener('click', e => {
   renderNotes();
 });
 
+const NOTE_STATUS_LABEL = { new: '⚪ Новая', understood: '🔵 Осознана', lived: '✅ Прожита', archive: '📦 Архив' };
+
 function renderNotes() {
   const wrap = document.getElementById('notesList');
-  const list = activeSphere === 'all' ? notes : notes.filter(n => n.sphere === activeSphere);
+  const isArchive = activeSphere === '__archive__';
+  let list;
+  if (isArchive) {
+    list = notes.filter(n => n.noteStatus === 'archive');
+  } else if (activeSphere === 'all') {
+    list = notes.filter(n => n.noteStatus !== 'archive');
+  } else {
+    list = notes.filter(n => n.sphere === activeSphere && n.noteStatus !== 'archive');
+  }
 
   if (!list.length) {
-    wrap.innerHTML = `
-      <div class="empty">
-        <div class="empty-sym">◎</div>
-        <p>Пока нет заметок — создай первую</p>
-      </div>`;
+    wrap.innerHTML = `<div class="empty"><div class="empty-sym">◎</div><p>${isArchive ? 'Архив пуст' : 'Пока нет заметок — создай первую'}</p></div>`;
     return;
   }
 
-  // Group by topic
   const groups = {};
   list.forEach(n => {
     const key = n.topic || 'Без темы';
@@ -2674,23 +2732,37 @@ function renderNotes() {
     groups[key].push(n);
   });
 
-  wrap.innerHTML = Object.entries(groups).map(([topic, items]) => `
+  wrap.innerHTML = Object.entries(groups).map(([topic, items]) => {
+    const cnt = { new: 0, understood: 0, lived: 0 };
+    items.forEach(n => { const s = n.noteStatus || 'new'; if (cnt[s] !== undefined) cnt[s]++; });
+    const progressHtml = `
+      <div class="folder-progress">
+        ${cnt.new        ? `<span class="fp-dot new"></span>${cnt.new}` : ''}
+        ${cnt.understood ? `<span class="fp-dot understood" style="margin-left:4px;"></span>${cnt.understood}` : ''}
+        ${cnt.lived      ? `<span class="fp-dot lived" style="margin-left:4px;"></span>${cnt.lived}` : ''}
+      </div>`;
+    return `
     <div class="topic-folder open" id="tf-${encodeURIComponent(topic)}">
       <div class="topic-folder-head" onclick="toggleFolder(this)">
         <span class="topic-folder-title">${esc(topic)}</span>
+        ${progressHtml}
         <span class="topic-folder-count">${items.length} ${items.length === 1 ? 'заметка' : items.length < 5 ? 'заметки' : 'заметок'}</span>
+        ${items.length >= 2 ? `<button class="btn-evolution" onclick="analyzeEvolution('${encodeURIComponent(topic)}', event)">✦ Эволюция</button>` : ''}
         <svg class="topic-folder-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </div>
-      <div class="topic-folder-body">
-        ${items.map(n => `
+      <div class="topic-folder-body" id="tfb-${encodeURIComponent(topic)}">
+        ${items.map(n => {
+          const st = n.noteStatus || 'new';
+          return `
           <div class="folder-note" id="fn-${n.id}">
             <div class="folder-note-head" id="fnh-${n.id}" onclick="toggleFolderNote('${n.id}')">
               <div class="folder-note-info">
                 <div class="folder-note-row">
                   <span class="note-date">${n.date}</span>
                   <span class="note-sphere">${esc(n.sphere)}</span>
+                  <span class="note-status-badge ${st}">${NOTE_STATUS_LABEL[st]}</span>
                 </div>
                 <div class="folder-note-anchor">${esc(n.anchor || n.text?.slice(0,80) || '')}</div>
               </div>
@@ -2714,12 +2786,17 @@ function renderNotes() {
                   <div class="nb-label">${b.label}</div>
                   <div class="nb-text">${esc(n[b.key] || '')}</div>
                 </div>`).join('')}
+              <div class="note-status-actions">
+                <button class="btn-note-status btn-ns-understood" data-ns="understood" data-nid="${n.id}">🔵 Осознана</button>
+                <button class="btn-note-status btn-ns-lived"      data-ns="lived"      data-nid="${n.id}">✅ Прожита</button>
+                <button class="btn-note-status btn-ns-archive"    data-ns="archive"    data-nid="${n.id}">📦 В архив</button>
+              </div>
             </div>
-          </div>
-        `).join('')}
+          </div>`;
+        }).join('')}
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function toggleFolder(head) {
@@ -2747,7 +2824,74 @@ document.getElementById('notesList').addEventListener('click', e => {
     toast('Заметка удалена');
     return;
   }
+  // Note status change
+  const nsBtn = e.target.closest('[data-ns]');
+  if (nsBtn) {
+    e.stopPropagation();
+    const id = nsBtn.dataset.nid;
+    const status = nsBtn.dataset.ns;
+    const note = notes.find(n => n.id === id);
+    if (note) {
+      note.noteStatus = status;
+      localStorage.setItem('ml_notes', JSON.stringify(notes));
+      renderNotes();
+      const labels = { understood: 'Осознана 🔵', lived: 'Прожита ✅', archive: 'В архив 📦' };
+      toast('Статус: ' + labels[status]);
+    }
+    return;
+  }
 });
+
+async function analyzeEvolution(encodedTopic, e) {
+  e.stopPropagation();
+  const topic = decodeURIComponent(encodedTopic);
+  const topicNotes = notes.filter(n => (n.topic || 'Без темы') === topic && n.noteStatus !== 'archive');
+  if (topicNotes.length < 2) return;
+
+  const bodyEl = document.getElementById('tfb-' + encodedTopic);
+  let resultEl = bodyEl.querySelector('.evolution-result');
+  if (!resultEl) {
+    resultEl = document.createElement('div');
+    resultEl.className = 'evolution-result';
+    bodyEl.insertBefore(resultEl, bodyEl.firstChild);
+  }
+  resultEl.innerHTML = '<div class="evolution-result-label">Анализ эволюции</div>Анализирую...';
+
+  const sorted = [...topicNotes].sort((a, b) => a.id.localeCompare(b.id));
+  const first = sorted.slice(0, 2).map((n, i) => `Заметка ${i+1} (${n.date}):\n${n.text}\nОсознание: ${n.insight || ''}\nЯкорь: ${n.anchor || ''}`).join('\n\n');
+  const last  = sorted.slice(-2).map((n, i) => `Заметка (${n.date}):\n${n.text}\nОсознание: ${n.insight || ''}\nЯкорь: ${n.anchor || ''}`).join('\n\n');
+
+  const prompt = `Ты анализируешь эволюцию мышления человека по теме "${topic}" согласно методологии Андрея Ханта (ТП).
+
+ПЕРВЫЕ ЗАМЕТКИ:
+${first}
+
+ПОСЛЕДНИЕ ЗАМЕТКИ:
+${last}
+
+Проанализируй:
+1. Как изменилось понимание темы — от интеллектуального к более глубокому?
+2. Какие сдвиги в воззрении произошли?
+3. Что ещё предстоит прожить по методологии ТП?
+
+Отвечай кратко, конкретно, 3-4 абзаца. На русском.`;
+
+  try {
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${GROQ_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [
+        { role: 'system', content: 'Ты коуч по методологии Андрея Ханта (Трансформационная Программа). ' + (knowledgeBase || '') },
+        { role: 'user', content: prompt }
+      ], max_tokens: 600 })
+    });
+    const data = await resp.json();
+    const text = data.choices?.[0]?.message?.content || 'Не удалось получить анализ';
+    resultEl.innerHTML = `<div class="evolution-result-label">✦ Эволюция мышления — ${esc(topic)}</div>${esc(text).replace(/\n/g, '<br>')}`;
+  } catch {
+    resultEl.innerHTML = '<div class="evolution-result-label">Ошибка</div>Не удалось подключиться к AI';
+  }
+}
 
 // ── Textarea auto-resize ───────────────────────────────
 const ta = document.getElementById('textIn');
