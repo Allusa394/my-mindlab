@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MindLab — интеграция знаний в мышление</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#7C3AED">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MindLab">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -283,6 +290,15 @@
       overflow: hidden;
       line-height: 1.7;
       margin-bottom: 6px;
+    }
+
+    @media (max-width: 560px) {
+      textarea {
+        min-height: 120px;
+        max-height: 220px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
     }
 
     .btn-analyze {
@@ -1210,10 +1226,171 @@
       .input-panel { padding: 20px 18px; }
       .block { padding: 18px 16px; }
       .note-head { padding: 13px 14px; }
+      .header-right { gap: 6px; }
+      .btn-icon { padding: 7px 10px; }
+      .btn-icon span.btn-label { display: none; }
+      .notes-badge { padding: 4px 8px; font-size: 11px; }
     }
+
+    /* ─── Onboarding ─── */
+    .onboarding {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0f1117;
+      display: flex; flex-direction: column;
+      align-items: center;
+      transition: opacity 0.4s ease;
+    }
+    .onboarding.hidden { opacity: 0; pointer-events: none; }
+
+    .ob-slides { width: 100%; max-width: 420px; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 24px 0; overflow-y: auto; }
+
+    .ob-slide { display: none; text-align: center; animation: ob-in 0.35s ease; }
+    .ob-slide.active { display: block; }
+    @keyframes ob-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+
+    .ob-icon { font-size: 48px; margin-bottom: 16px; line-height: 1; }
+    .ob-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 12px; letter-spacing: -.02em; }
+    .ob-text { font-size: 15px; color: var(--text-2); line-height: 1.65; margin-bottom: 0; }
+    .ob-text b { color: var(--text); }
+
+    .ob-steps { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 4px; }
+    .ob-step { display: flex; gap: 12px; align-items: flex-start; }
+    .ob-step-icon { width: 34px; height: 34px; border-radius: 10px; background: rgba(91,91,214,.15); border: 1px solid rgba(91,91,214,.25); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .ob-step-text { padding-top: 2px; }
+    .ob-step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .ob-step-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+
+    .ob-footer { width: 100%; max-width: 420px; padding: 16px 24px 32px; background: #0f1117; flex-shrink: 0; }
+    .ob-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 14px; }
+    .ob-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all 0.25s; }
+    .ob-dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
+
+    .ob-btn-next {
+      width: 100%; padding: 14px; border-radius: 12px;
+      background: var(--accent); border: none; color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .ob-btn-next:hover { opacity: 0.9; }
+    .ob-skip { display: block; text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-3); cursor: pointer; }
+    .ob-skip:hover { color: var(--text-2); }
   </style>
 </head>
 <body>
+
+<!-- ── Onboarding ── -->
+<div class="onboarding" id="onboarding">
+  <div class="ob-slides">
+
+    <!-- Слайд 1: Приветствие -->
+    <div class="ob-slide active" data-slide="0">
+      <div class="ob-icon">🧠</div>
+      <div class="ob-title">Добро пожаловать в MindLab</div>
+      <p class="ob-text">Ты слушаешь тренинг — появилась мысль.<br><b>MindLab помогает её не потерять и глубоко интегрировать</b> через методологию Технологии Просветления Ханта.</p>
+    </div>
+
+    <!-- Слайд 2: Как захватить мысль -->
+    <div class="ob-slide" data-slide="1">
+      <div class="ob-icon">🎙️</div>
+      <div class="ob-title">Захвати мысль за секунды</div>
+      <div class="ob-steps">
+        <div class="ob-step">
+          <div class="ob-step-icon">🎤</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Говорить</div>
+            <div class="ob-step-desc">Нажми и скажи мысль вслух — текст появится автоматически</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-icon">⌨️</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Напечатать</div>
+            <div class="ob-step-desc">Просто напиши мысль в поле и нажми «Анализировать»</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-icon">⚡</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Быстро</div>
+            <div class="ob-step-desc">Кнопка ⚡ — мгновенный анализ без лишних кликов</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 3: Что ты получаешь -->
+    <div class="ob-slide" data-slide="2">
+      <div class="ob-icon">✨</div>
+      <div class="ob-title">AI анализирует через ТП</div>
+      <div class="ob-steps">
+        <div class="ob-step">
+          <div class="ob-step-icon">💡</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Смысл + Связь с собой</div>
+            <div class="ob-step-desc">Как идея звучит через концепции Ханта</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-icon">🔍</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Осознание + Якорь</div>
+            <div class="ob-step-desc">Неожиданный вывод и фраза-якорь для памяти</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-icon">🔄</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Интеграция + Нейроконтур</div>
+            <div class="ob-step-desc">Конкретная практика и паттерн для закрепления</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 4: Библиотека и Тезисы -->
+    <div class="ob-slide" data-slide="3">
+      <div class="ob-icon">📚</div>
+      <div class="ob-title">Библиотека и Тезисы</div>
+      <div class="ob-steps">
+        <div class="ob-step">
+          <div class="ob-step-icon">📖</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Библиотека</div>
+            <div class="ob-step-desc">Все твои заметки, сгруппированные по темам</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-icon">🕐</div>
+          <div class="ob-step-text">
+            <div class="ob-step-title">Тезисы</div>
+            <div class="ob-step-desc">Утверждения которые нужно не только понять, но и <b>прожить</b>. Три стадии: Новый → Понят → Прожит</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 5: Начать -->
+    <div class="ob-slide" data-slide="4">
+      <div class="ob-icon">🚀</div>
+      <div class="ob-title">Готово!</div>
+      <p class="ob-text">Нажми «Говорить» и скажи первую мысль.<br><br><b>MindLab превратит её в глубокое осознание.</b></p>
+    </div>
+
+  </div>
+
+  <div class="ob-footer">
+    <div class="ob-dots">
+      <div class="ob-dot active"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+      <div class="ob-dot"></div>
+    </div>
+    <button class="ob-btn-next" id="obNext">Далее →</button>
+    <span class="ob-skip" id="obSkip">Пропустить</span>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- ── Header ── -->
@@ -1225,6 +1402,7 @@
     </div>
     <div class="header-right">
       <div class="notes-badge" onclick="renderProgress()" title="Открыть прогресс" style="cursor:pointer;">Заметок: <strong id="notesCount">0</strong></div>
+      <button class="btn-icon" onclick="showOnboarding()" title="Как пользоваться" style="padding:7px 9px;">?</button>
       <button class="btn-quick" id="btnQuick" title="Режим быстрого захвата — одно поле, одна кнопка">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
@@ -1236,14 +1414,14 @@
           <circle cx="12" cy="12" r="10"/>
           <polyline points="12 6 12 12 16 14"/>
         </svg>
-        Тезисы <span id="thesisCount" style="margin-left:3px;background:rgba(91,91,214,.2);color:var(--accent);font-size:11px;border-radius:8px;padding:0 6px;">0</span>
+        <span class="btn-label">Тезисы</span> <span id="thesisCount" style="margin-left:3px;background:rgba(91,91,214,.2);color:var(--accent);font-size:11px;border-radius:8px;padding:0 6px;">0</span>
       </button>
       <button class="btn-icon" id="btnLib">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
-        Библиотека
+        <span class="btn-label">Библиотека</span>
       </button>
     </div>
   </header>
@@ -1289,6 +1467,7 @@
       </div>
       <textarea id="textIn" placeholder="Нажми «Говорить» и скажи свою мысль — или напечатай текст..."></textarea>
       <div class="mic-status" id="micStatus"></div>
+      <button id="btnClearText" onclick="clearInput()" style="display:block;background:none;border:none;color:var(--c-muted);font-size:12px;cursor:pointer;padding:4px 0;text-align:left;opacity:0.6;">✕ Очистить поле</button>
     </div>
 
     <button class="btn-analyze" id="btnAnalyze">Анализировать</button>
@@ -1845,6 +2024,15 @@ async function callAI(text, topic, sphere) {
 }
 
 // ── New Note ─────────────────────────────────────────
+function clearInput() {
+  stopVoice();
+  const ta = document.getElementById('textIn');
+  ta.value = '';
+  ta.style.height = '';
+  document.getElementById('btnClearText').style.display = 'none';
+  ta.focus();
+}
+
 function newNote() {
   stopVoice();
   document.getElementById('textIn').value = '';
@@ -1853,6 +2041,7 @@ function newNote() {
   document.getElementById('results').classList.remove('show');
   document.getElementById('blocks').innerHTML = '';
   document.getElementById('textIn').style.height = '';
+  document.getElementById('btnClearText').style.display = 'none';
   document.getElementById('textIn').focus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1875,56 +2064,53 @@ function toggleVoice() {
 
 function startVoice() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
-  recognition.lang = 'ru-RU';
-  recognition.interimResults = true;
-  recognition.continuous = true;
-
   const btn = document.getElementById('btnMic');
   const label = document.getElementById('micLabel');
   const status = document.getElementById('micStatus');
   const textarea = document.getElementById('textIn');
-  const existingText = textarea.value.trim();
 
-  let interimText = '';
+  isRecording = true;
+  btn.classList.add('recording');
+  label.textContent = 'Остановить';
+  status.textContent = '🔴 Слушаю...';
+  status.classList.add('active');
 
-  recognition.onstart = () => {
-    isRecording = true;
-    btn.classList.add('recording');
-    label.textContent = 'Остановить';
-    status.textContent = '🔴 Слушаю...';
-    status.classList.add('active');
-  };
+  function createSession(base) {
+    if (!isRecording) return;
+    const rec = new SpeechRecognition();
+    rec.lang = 'ru-RU';
+    rec.interimResults = true;
+    rec.continuous = false; // короткие сессии без дублей
 
-  recognition.onresult = (e) => {
-    let interim = '';
-    let final = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) final += t;
-      else interim += t;
-    }
-    if (final) {
-      interimText = '';
-      const sep = existingText || textarea.value.trim() ? ' ' : '';
-      textarea.value = (textarea.value.trim() + sep + final).trim();
+    rec.onresult = (e) => {
+      let sessionFinal = '';
+      let interim = '';
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) sessionFinal += e.results[i][0].transcript.trim() + ' ';
+        else interim = e.results[i][0].transcript;
+      }
+      const full = (base + ' ' + sessionFinal).trim();
+      textarea.value = interim ? (full + ' ' + interim).trim() : full;
       autoResize(textarea);
-    }
-    status.textContent = interim ? `🔴 ${interim}` : '🔴 Слушаю...';
-  };
+      document.getElementById('btnClearText').style.display = 'block';
+      status.textContent = interim ? `🔴 ${interim}` : '🔴 Слушаю...';
+    };
 
-  recognition.onerror = (e) => {
-    if (e.error === 'no-speech') return;
-    stopVoice();
-    if (e.error === 'not-allowed') toast('Нет доступа к микрофону — разреши в браузере');
-    else toast('Ошибка микрофона: ' + e.error);
-  };
+    rec.onerror = (e) => {
+      if (e.error === 'no-speech') { createSession(textarea.value.trim()); return; }
+      stopVoice();
+      if (e.error === 'not-allowed') toast('Нет доступа к микрофону — разреши в браузере');
+    };
 
-  recognition.onend = () => {
-    if (isRecording) recognition.start(); // авто-перезапуск пока не нажали стоп
-  };
+    rec.onend = () => {
+      if (isRecording) createSession(textarea.value.trim()); // новая сессия с текущим текстом как базой
+    };
 
-  recognition.start();
+    recognition = rec;
+    rec.start();
+  }
+
+  createSession(textarea.value.trim());
 }
 
 function stopVoice() {
@@ -1937,9 +2123,7 @@ function stopVoice() {
   label.textContent = 'Говорить';
   status.textContent = '';
   status.classList.remove('active');
-  // автоматически запустить анализ если есть текст
-  const text = document.getElementById('textIn').value.trim();
-  if (text.length > 10) analyze();
+  // анализ запускается только вручную кнопкой
 }
 
 // ── Analyze ──────────────────────────────────────────
@@ -2561,6 +2745,7 @@ const ta = document.getElementById('textIn');
 ta.addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.max(130, this.scrollHeight) + 'px';
+  document.getElementById('btnClearText').style.display = this.value.trim() ? 'block' : 'none';
 });
 
 // ── Enter in topic ────────────────────────────────────
@@ -2805,6 +2990,54 @@ function checkThesisReminders() {
 // ── Init ──────────────────────────────────────────────
 updateCount();
 updateThesisCount();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+
+// ── Onboarding ────────────────────────────────────────
+function showOnboarding() {
+  localStorage.removeItem('ml_onboarded');
+  location.reload();
+}
+
+(function() {
+  const ob = document.getElementById('onboarding');
+  if (localStorage.getItem('ml_onboarded')) { ob.remove(); return; }
+  const slides = ob.querySelectorAll('.ob-slide');
+  const dots = ob.querySelectorAll('.ob-dot');
+  const btnNext = document.getElementById('obNext');
+  const btnSkip = document.getElementById('obSkip');
+  let current = 0;
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    if (current === slides.length - 1) {
+      btnNext.textContent = 'Начать →';
+      btnSkip.style.display = 'none';
+    } else {
+      btnNext.textContent = 'Далее →';
+      btnSkip.style.display = 'block';
+    }
+  }
+
+  function finish() {
+    localStorage.setItem('ml_onboarded', '1');
+    ob.classList.add('hidden');
+    setTimeout(() => ob.remove(), 400);
+  }
+
+  btnNext.addEventListener('click', () => {
+    if (current < slides.length - 1) goTo(current + 1);
+    else finish();
+  });
+
+  btnSkip.addEventListener('click', finish);
+})();
 </script>
 </body>
 </html>
