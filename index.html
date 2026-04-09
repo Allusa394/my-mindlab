@@ -157,10 +157,11 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      color: var(--text-2);
+      color: var(--text);
       font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      padding: 7px 13px;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 9px 16px;
       cursor: pointer;
       transition: all 180ms var(--ease);
       white-space: nowrap;
@@ -1237,8 +1238,7 @@
       .block { padding: 18px 16px; }
       .note-head { padding: 13px 14px; }
       .header-right { gap: 6px; }
-      .btn-icon { padding: 7px 10px; }
-      .btn-icon span.btn-label { display: none; }
+      .btn-icon { padding: 7px 11px; font-size: 13px; }
       .notes-badge { padding: 4px 8px; font-size: 11px; }
     }
 
@@ -1413,12 +1413,6 @@
     <div class="header-right">
       <div class="notes-badge" onclick="renderProgress()" title="Открыть прогресс" style="cursor:pointer;">Заметок: <strong id="notesCount">0</strong></div>
       <button class="btn-icon" onclick="showOnboarding()" title="Как пользоваться" style="padding:7px 9px;">?</button>
-      <button class="btn-quick" id="btnQuick" title="Режим быстрого захвата — одно поле, одна кнопка">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-        Быстро
-      </button>
       <button class="btn-icon" id="btnTheses">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
