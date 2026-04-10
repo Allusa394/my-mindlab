@@ -6,21 +6,35 @@ AI-ассистент интеграции знаний из тренингов.
 Основной сценарий: "слушаю тренинг Ханта → появилась мысль → нажал 'Говорить' → сказал мысль → получил анализ".
 
 ## Структура файлов
+
+```
+my-mindLab/
+├── index.html          ← всё приложение (один файл, без сборки)
+├── knowledge_base.md   ← база знаний ТП (~28KB, загружается через fetch)
+├── config.js           ← API ключи (в .gitignore)
+├── manifest.json       ← PWA манифест
+├── sw.js               ← Service Worker (кэш)
+├── icon-192.png        ← иконки PWA
+├── icon-512.png
+├── brief.md            ← техническое задание проекта
+├── research.md         ← исследования и анализ
+├── CLAUDE.md           ← этот файл
+├── transcribe.py       ← скрипт транскрибации видео через Whisper
+├── docs/               ← дополнительная документация
+│   ├── plan.md
+│   ├── links.md
+│   └── напомнить себе.txt
+├── research/           ← дополнительные исследования
+│   └── research_telegram_bots_monetization.md
+└── content/            ← транскрипты и методология
+    ├── methodology.md
+    ├── transcripts.md
+    ├── transcripts2.md
+    └── transcripts_mysterii.md
+```
+
 **Корень (нельзя трогать — нужны для работы приложения):**
-- `index.html` — всё приложение (один файл, без сборки)
-- `knowledge_base.md` — база знаний ТП (~28KB, загружается через fetch)
-- `config.js` — API ключи (в .gitignore)
-- `manifest.json`, `sw.js` — PWA
-- `icon-192.png`, `icon-512.png` — иконки приложения
-
-**`docs/`** — документация проекта:
-- `brief.md`, `plan.md`, `links.md`, `напомнить себе.txt`
-
-**`research/`** — исследования:
-- `research.md`, `research_telegram_bots_monetization.md`
-
-**`content/`** — транскрипты и методология:
-- `methodology.md`, `transcripts.md`, `transcripts2.md`, `transcripts_mysterii.md`
+`index.html`, `knowledge_base.md`, `config.js`, `manifest.json`, `sw.js`, `icon-*.png`
 
 ## API ключи
 - **Groq** — основной AI (работает, бесплатно, llama-3.3-70b-versatile)
