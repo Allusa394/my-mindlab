@@ -1298,7 +1298,8 @@
     .onboarding {
       position: fixed; inset: 0; z-index: 9999;
       background: #0f1117;
-      display: flex; flex-direction: column;
+      display: none; /* СКРЫТО: онбординг отключен для знающих пользователей */
+      flex-direction: column;
       align-items: center;
       transition: opacity 0.4s ease;
     }
@@ -3450,8 +3451,11 @@ if ('serviceWorker' in navigator) {
 
 // ── Onboarding ────────────────────────────────────────
 function showOnboarding() {
-  localStorage.removeItem('ml_onboarded');
-  location.reload();
+  const ob = document.getElementById('onboarding');
+  if (ob) {
+    ob.style.display = 'flex';
+    ob.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 // Onboarding disabled - user already knows the app
