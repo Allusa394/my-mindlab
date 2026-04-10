@@ -12,12 +12,6 @@
     :root{--bg:#0E0E10;--surface:#161618;--surface-2:#1C1C1F;--border:#2A2A2E;--text:#F5F5F7;--text-2:#D8D8E2;--accent:#5B5BD6;--c-meaning:#5B5BD6;--c-connection:#10B981;--c-insight:#F59E0B;--c-anchor:#EF4444;--c-integration:#8B5CF6;--c-neuro:#06B6D4}
     body{background:var(--bg);color:var(--text);font-family:system-ui;font-size:16px;min-height:100vh}
     .app{max-width:1000px;margin:0 auto;padding:20px}
-    .password-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .password-form{text-align:center;background:var(--surface);padding:40px;border-radius:12px;width:90%;max-width:400px}
-    .password-form h1{font-size:28px;margin-bottom:20px}
-    .password-form input{width:100%;padding:12px;margin-bottom:15px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px}
-    .password-form button{width:100%;padding:12px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:500}
-    .password-screen.hidden{display:none}
     header{display:flex;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:20px}
     .logo{font-size:20px;font-weight:bold}
     .header-right{display:flex;gap:10px}
@@ -45,15 +39,7 @@
 </head>
 <body>
 
-<div class="password-screen" id="passwordScreen">
-  <div class="password-form">
-    <h1>🔐 MindLab</h1>
-    <input type="password" id="passwordInput" placeholder="Пароль" autofocus />
-    <button onclick="checkPassword()">Войти</button>
-  </div>
-</div>
-
-<div class="app" id="app" style="display:none">
+<div class="app" id="app">
   <header>
     <div class="logo">🧠 MindLab</div>
     <div class="header-right">
@@ -97,24 +83,7 @@
 <script>
 const GROQ_MODEL='llama-3.3-70b-versatile';
 
-// Auth
-if(localStorage.getItem('mindlab_auth')==='true'){
-  document.getElementById('passwordScreen').classList.add('hidden');
-  document.getElementById('app').style.display='block';
-}
-
-function checkPassword(){
-  const pwd=document.getElementById('passwordInput').value;
-  if(pwd==='25.11.97'){
-    localStorage.setItem('mindlab_auth','true');
-    document.getElementById('passwordScreen').classList.add('hidden');
-    document.getElementById('app').style.display='block';
-  }else alert('❌ Неверный пароль');
-}
-
-document.getElementById('passwordInput').addEventListener('keypress',(e)=>{
-  if(e.key==='Enter')checkPassword();
-});
+// App is open by default (no password)
 
 // Voice
 function startVoice(){

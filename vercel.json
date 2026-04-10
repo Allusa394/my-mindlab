@@ -1,0 +1,5 @@
+{
+  "env": {
+    "GROQ_KEY": "@groq_key"
+  }
+}
