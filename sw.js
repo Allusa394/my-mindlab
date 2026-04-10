@@ -1,4 +1,4 @@
-const CACHE = 'mindlab-v12';
+const CACHE = 'mindlab-v13';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
