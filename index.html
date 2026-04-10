@@ -8,38 +8,149 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="MindLab">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#0E0E10;--surface:#161618;--surface-2:#1C1C1F;--border:#2A2A2E;--text:#F5F5F7;--text-2:#D8D8E2;--accent:#5B5BD6;--c-meaning:#5B5BD6;--c-connection:#10B981;--c-insight:#F59E0B;--c-anchor:#EF4444;--c-integration:#8B5CF6;--c-neuro:#06B6D4}
-    body{background:var(--bg);color:var(--text);font-family:system-ui;font-size:16px;min-height:100vh}
-    .app{max-width:1000px;margin:0 auto;padding:20px}
-    header{display:flex;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:20px}
-    .logo{font-size:20px;font-weight:bold}
-    .header-right{display:flex;gap:10px}
-    .btn-icon{background:var(--surface);border:1px solid var(--border);color:var(--text);width:44px;height:44px;border-radius:8px;cursor:pointer;font-size:18px}
-    .input-section{background:var(--surface);padding:20px;border-radius:8px;margin-bottom:20px}
-    .input-field{width:100%;min-height:100px;padding:12px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:6px;margin-bottom:12px;font-family:inherit}
-    .input-actions{display:flex;gap:10px}
-    .btn{flex:1;padding:10px;background:var(--accent);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:500}
-    .btn.recording{background:#EF4444}
-    .results{display:none}
-    .results.show{display:block}
-    .block{background:var(--surface);padding:15px;border-radius:8px;margin-bottom:12px;border-left:4px solid var(--accent)}
-    .block.meaning{border-left-color:var(--c-meaning)}
-    .block.connection{border-left-color:var(--c-connection)}
-    .block.insight{border-left-color:var(--c-insight)}
-    .block.anchor{border-left-color:var(--c-anchor)}
-    .block.integration{border-left-color:var(--c-integration)}
-    .block.neuro{border-left-color:var(--c-neuro)}
-    .block-title{font-weight:bold;font-size:13px;color:var(--text-2);margin-bottom:8px}
-    .library,.theses{display:none;background:var(--surface);padding:20px;border-radius:8px;margin-top:20px}
-    .library.show,.theses.show{display:block}
-    .note-item{background:var(--surface-2);padding:12px;border-radius:6px;margin-bottom:8px;cursor:pointer;border-left:3px solid var(--accent)}
-    .loading{text-align:center;color:var(--text-2);padding:20px}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0E0E10;
+      --surface: #161618;
+      --surface-2: #1C1C1F;
+      --border: #2A2A2E;
+      --text: #F5F5F7;
+      --text-2: #D8D8E2;
+      --accent: #5B5BD6;
+      --c-meaning: #5B5BD6;
+      --c-connection: #10B981;
+      --c-insight: #F59E0B;
+      --c-anchor: #EF4444;
+      --c-integration: #8B5CF6;
+      --c-neuro: #06B6D4;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui;
+      font-size: 16px;
+      min-height: 100vh;
+    }
+
+    .app { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .logo { font-size: 20px; font-weight: bold; }
+
+    .header-right { display: flex; gap: 10px; }
+
+    .btn-icon {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .input-section {
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      font-family: inherit;
+      font-size: 16px;
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn:hover { opacity: 0.9; }
+
+    .btn.recording { background: #EF4444; }
+
+    .results { display: none; }
+    .results.show { display: block; }
+
+    .block {
+      background: var(--surface);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .block.meaning { border-left-color: var(--c-meaning); }
+    .block.connection { border-left-color: var(--c-connection); }
+    .block.insight { border-left-color: var(--c-insight); }
+    .block.anchor { border-left-color: var(--c-anchor); }
+    .block.integration { border-left-color: var(--c-integration); }
+    .block.neuro { border-left-color: var(--c-neuro); }
+
+    .block-title {
+      font-weight: bold;
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+
+    .library, .theses {
+      display: none;
+      background: var(--surface);
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .library.show, .theses.show { display: block; }
+
+    .note-item {
+      background: var(--surface-2);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      border-left: 3px solid var(--accent);
+    }
+
+    .loading { text-align: center; color: var(--text-2); padding: 20px; display: none; }
+    .loading.show { display: block; }
   </style>
 </head>
 <body>
 
-<div class="app" id="app">
+<div class="app">
   <header>
     <div class="logo">🧠 MindLab</div>
     <div class="header-right">
@@ -57,7 +168,7 @@
     </div>
   </div>
 
-  <div id="loading" class="loading" style="display:none">⏳ Анализирую...</div>
+  <div id="loading" class="loading">⏳ Анализирую...</div>
 
   <div class="results" id="results">
     <div class="block meaning"><div class="block-title">💡 СМЫСЛ</div><div id="meaning"></div></div>
@@ -81,107 +192,158 @@
 
 <script src="/config.js"></script>
 <script>
-const GROQ_MODEL='llama-3.3-70b-versatile';
-
-// App is open by default (no password)
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 // Voice
-function startVoice(){
-  const R=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
-  R.lang='ru-RU';
-  const btn=document.getElementById('btnSpeak');
+function startVoice() {
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = 'ru-RU';
+  const btn = document.getElementById('btnSpeak');
   btn.classList.add('recording');
-  btn.textContent='🎙️ Слушаю...';
-  R.onresult=(e)=>{
-    const txt=Array.from(e.results).map(r=>r[0].transcript).join('');
-    document.getElementById('noteInput').value=txt;
+  btn.textContent = '🎙️ Слушаю...';
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript)
+      .join('');
+    document.getElementById('noteInput').value = transcript;
     btn.classList.remove('recording');
-    btn.textContent='🎤 Говорить';
+    btn.textContent = '🎤 Говорить';
   };
-  R.onerror=()=>{
+
+  recognition.onerror = () => {
     btn.classList.remove('recording');
-    btn.textContent='🎤 Говорить';
+    btn.textContent = '🎤 Говорить';
     alert('Ошибка микрофона');
   };
-  R.start();
+
+  recognition.start();
 }
 
-function clearInput(){
-  document.getElementById('noteInput').value='';
+function clearInput() {
+  document.getElementById('noteInput').value = '';
   document.getElementById('results').classList.remove('show');
 }
 
 // Analyze
-async function analyze(){
-  const text=document.getElementById('noteInput').value.trim();
-  if(!text){alert('Напиши мысль!');return;}
-  document.getElementById('loading').style.display='block';
+async function analyze() {
+  const text = document.getElementById('noteInput').value.trim();
+  if (!text) {
+    alert('Напиши мысль!');
+    return;
+  }
 
-  const fallback={meaning:'Ключевое понимание о сознании',connection:'Относится к твоему внутреннему миру',insight:'Неожиданный вывод',anchor:'"Мысль случается, не делается"',integration:'Практика наблюдения',neuro:'Переформулирование паттернов'};
+  document.getElementById('loading').classList.add('show');
 
-  try{
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${window.GROQ_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify({model:GROQ_MODEL,messages:[{role:'system',content:'Анализируй через 6 блоков: СМЫСЛ, СВЯЗЬ, ОСОЗНАНИЕ, ЯКОРЬ, ИНТЕГРАЦИЯ, НЕЙРОКОНТУР. Ответь JSON'},{role:'user',content:text}],max_tokens:1500})
+  const fallback = {
+    meaning: 'Ключевое понимание о сознании',
+    connection: 'Относится к твоему внутреннему миру',
+    insight: 'Неожиданный вывод',
+    anchor: '"Мысль случается, не делается"',
+    integration: 'Практика наблюдения',
+    neuro: 'Переформулирование паттернов'
+  };
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${window.GROQ_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'Анализируй через 6 блоков: СМЫСЛ, СВЯЗЬ, ОСОЗНАНИЕ, ЯКОРЬ, ИНТЕГРАЦИЯ, НЕЙРОКОНТУР. Ответь JSON'
+          },
+          {
+            role: 'user',
+            content: text
+          }
+        ],
+        max_tokens: 1500
+      })
     });
-    if(res.ok){
-      const d=await res.json();
-      const c=d.choices[0].message.content;
-      const m=c.match(/\{[\s\S]*\}/);
-      const r=m?JSON.parse(m[0]):fallback;
-      showResults(r);
-      saveNote(text,r);
-    }else{showResults(fallback);saveNote(text,fallback);}
-  }catch(e){showResults(fallback);saveNote(text,fallback);}
-  finally{document.getElementById('loading').style.display='none';}
+
+    if (res.ok) {
+      const data = await res.json();
+      const content = data.choices[0].message.content;
+      const match = content.match(/\{[\s\S]*\}/);
+      const result = match ? JSON.parse(match[0]) : fallback;
+      showResults(result);
+      saveNote(text, result);
+    } else {
+      showResults(fallback);
+      saveNote(text, fallback);
+    }
+  } catch (e) {
+    console.error('API Error:', e);
+    showResults(fallback);
+    saveNote(text, fallback);
+  } finally {
+    document.getElementById('loading').classList.remove('show');
+  }
 }
 
-function showResults(r){
-  document.getElementById('meaning').textContent=r.meaning||'...';
-  document.getElementById('connection').textContent=r.connection||'...';
-  document.getElementById('insight').textContent=r.insight||'...';
-  document.getElementById('anchor').textContent=r.anchor||'...';
-  document.getElementById('integration').textContent=r.integration||'...';
-  document.getElementById('neuro').textContent=r.neuro||'...';
+function showResults(r) {
+  document.getElementById('meaning').textContent = r.meaning || '...';
+  document.getElementById('connection').textContent = r.connection || '...';
+  document.getElementById('insight').textContent = r.insight || '...';
+  document.getElementById('anchor').textContent = r.anchor || '...';
+  document.getElementById('integration').textContent = r.integration || '...';
+  document.getElementById('neuro').textContent = r.neuro || '...';
   document.getElementById('results').classList.add('show');
 }
 
-// Library
-let notes=JSON.parse(localStorage.getItem('mindlab_notes')||'[]');
+// Notes Storage
+let notes = JSON.parse(localStorage.getItem('mindlab_notes') || '[]');
 
-function saveNote(t,a){
-  notes.push({id:Date.now(),text:t.slice(0,80),date:new Date().toLocaleDateString('ru-RU'),analysis:a});
-  localStorage.setItem('mindlab_notes',JSON.stringify(notes));
+function saveNote(text, analysis) {
+  notes.push({
+    id: Date.now(),
+    text: text.slice(0, 80),
+    date: new Date().toLocaleDateString('ru-RU'),
+    analysis: analysis
+  });
+  localStorage.setItem('mindlab_notes', JSON.stringify(notes));
 }
 
-function toggleLibrary(){
-  const l=document.getElementById('library');
-  l.classList.toggle('show');
-  if(l.classList.contains('show'))renderLibrary();
+function toggleLibrary() {
+  const lib = document.getElementById('library');
+  lib.classList.toggle('show');
+  if (lib.classList.contains('show')) renderLibrary();
 }
 
-function renderLibrary(){
-  const h=notes.map(n=>`<div class="note-item" onclick="document.getElementById('noteInput').value='${n.text.replace(/'/g,"\\'")}';document.getElementById('noteInput').focus();"><strong>${n.text}</strong><br><span style="font-size:11px;color:var(--text-2)">${n.date}</span></div>`).join('');
-  document.getElementById('libraryList').innerHTML=h||'Нет заметок';
+function renderLibrary() {
+  const html = notes
+    .map(n => `<div class="note-item" onclick="document.getElementById('noteInput').value='${n.text.replace(/'/g, "\\'")}';document.getElementById('noteInput').focus();"><strong>${n.text}</strong><br><span style="font-size:11px;color:var(--text-2)">${n.date}</span></div>`)
+    .join('');
+  document.getElementById('libraryList').innerHTML = html || 'Нет заметок';
 }
 
-// Theses
-let theses=JSON.parse(localStorage.getItem('mindlab_theses')||'[]');
+// Theses Storage
+let theses = JSON.parse(localStorage.getItem('mindlab_theses') || '[]');
 
-function toggleTheses(){
-  const t=document.getElementById('theses');
+function toggleTheses() {
+  const t = document.getElementById('theses');
   t.classList.toggle('show');
-  if(t.classList.contains('show'))renderTheses();
+  if (t.classList.contains('show')) renderTheses();
 }
 
-function renderTheses(){
-  const h=theses.map(t=>`<div class="note-item"><strong>${t.text}</strong><br><span style="font-size:11px;color:var(--text-2)">${t.status||'новый'}</span></div>`).join('');
-  document.getElementById('thesisList').innerHTML=h||'Нет тезисов';
+function renderTheses() {
+  const html = theses
+    .map(t => `<div class="note-item"><strong>${t.text}</strong><br><span style="font-size:11px;color:var(--text-2)">${t.status || 'новый'}</span></div>`)
+    .join('');
+  document.getElementById('thesisList').innerHTML = html || 'Нет тезисов';
 }
 
-// SW
-if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js');
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 </script>
+
 </body>
 </html>
