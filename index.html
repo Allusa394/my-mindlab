@@ -3073,42 +3073,50 @@ function startVoice() {
   status.textContent = '🔴 Слушаю...';
   status.classList.add('active');
 
-  function createSession(base) {
-    if (!isRecording) return;
-    const rec = new SpeechRecognition();
-    rec.lang = 'ru-RU';
-    rec.interimResults = true;
-    rec.continuous = false; // короткие сессии без дублей
+  const rec = new SpeechRecognition();
+  rec.lang = 'ru-RU';
+  rec.interimResults = true;
+  rec.continuous = true;
+  rec.maxAlternatives = 1;
 
-    rec.onresult = (e) => {
-      let sessionFinal = '';
-      let interim = '';
-      for (let i = 0; i < e.results.length; i++) {
-        if (e.results[i].isFinal) sessionFinal += e.results[i][0].transcript.trim() + ' ';
-        else interim = e.results[i][0].transcript;
+  let finalText = textarea.value.trim();
+
+  rec.onresult = (e) => {
+    let interim = '';
+    let newFinal = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        newFinal += e.results[i][0].transcript.trim() + ' ';
+      } else {
+        interim += e.results[i][0].transcript;
       }
-      const full = (base + ' ' + sessionFinal).trim();
-      textarea.value = interim ? (full + ' ' + interim).trim() : full;
-      autoResize(textarea);
-      document.getElementById('btnClearText').style.display = 'block';
-      status.textContent = interim ? `🔴 ${interim}` : '🔴 Слушаю...';
-    };
+    }
+    if (newFinal) {
+      finalText = (finalText + ' ' + newFinal).trim();
+    }
+    textarea.value = interim ? (finalText + ' ' + interim).trim() : finalText;
+    autoResize(textarea);
+    document.getElementById('btnClearText').style.display = 'block';
+    status.textContent = interim ? `🔴 ${interim}` : '🔴 Слушаю...';
+  };
 
-    rec.onerror = (e) => {
-      if (e.error === 'no-speech') { createSession(textarea.value.trim()); return; }
-      stopVoice();
-      if (e.error === 'not-allowed') toast('Нет доступа к микрофону — разреши в браузере');
-    };
+  rec.onerror = (e) => {
+    if (e.error === 'no-speech') return; // просто молчание — продолжаем
+    stopVoice();
+    if (e.error === 'not-allowed') toast('Нет доступа к микрофону — разреши в браузере');
+    else if (e.error === 'network') toast('Нет интернета — голосовой ввод требует сеть');
+  };
 
-    rec.onend = () => {
-      if (isRecording) createSession(textarea.value.trim()); // новая сессия с текущим текстом как базой
-    };
+  rec.onend = () => {
+    // на мобильных continuous может всё равно останавливаться — перезапускаем
+    if (isRecording) {
+      finalText = textarea.value.trim();
+      try { rec.start(); } catch(err) {}
+    }
+  };
 
-    recognition = rec;
-    rec.start();
-  }
-
-  createSession(textarea.value.trim());
+  recognition = rec;
+  rec.start();
 }
 
 function stopVoice() {
