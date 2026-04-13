@@ -1294,49 +1294,6 @@
       .notes-badge { padding: 4px 8px; font-size: 11px; }
     }
 
-    /* ─── Onboarding ─── */
-    .onboarding {
-      position: fixed; inset: 0; z-index: 9999;
-      background: #0f1117;
-      display: none; /* СКРЫТО: онбординг отключен для знающих пользователей */
-      flex-direction: column;
-      align-items: center;
-      transition: opacity 0.4s ease;
-    }
-    .onboarding.hidden { opacity: 0; pointer-events: none; }
-
-    .ob-slides { width: 100%; max-width: 420px; flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 24px 0; overflow-y: auto; }
-
-    .ob-slide { display: none; text-align: center; animation: ob-in 0.35s ease; }
-    .ob-slide.active { display: block; }
-    @keyframes ob-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
-
-    .ob-icon { font-size: 48px; margin-bottom: 16px; line-height: 1; }
-    .ob-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 12px; letter-spacing: -.02em; }
-    .ob-text { font-size: 15px; color: var(--text-2); line-height: 1.65; margin-bottom: 0; }
-    .ob-text b { color: var(--text); }
-
-    .ob-steps { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 4px; }
-    .ob-step { display: flex; gap: 12px; align-items: flex-start; }
-    .ob-step-icon { width: 34px; height: 34px; border-radius: 10px; background: rgba(91,91,214,.15); border: 1px solid rgba(91,91,214,.25); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-    .ob-step-text { padding-top: 2px; }
-    .ob-step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-    .ob-step-desc { font-size: 12px; color: var(--text-2); line-height: 1.5; }
-
-    .ob-footer { width: 100%; max-width: 420px; padding: 16px 24px 32px; background: #0f1117; flex-shrink: 0; }
-    .ob-dots { display: flex; justify-content: center; gap: 7px; margin-bottom: 14px; }
-    .ob-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all 0.25s; }
-    .ob-dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
-
-    .ob-btn-next {
-      width: 100%; padding: 14px; border-radius: 12px;
-      background: var(--accent); border: none; color: #fff;
-      font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
-      cursor: pointer; transition: opacity 0.2s;
-    }
-    .ob-btn-next:hover { opacity: 0.9; }
-    .ob-skip { display: block; text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-3); cursor: pointer; }
-    .ob-skip:hover { color: var(--text-2); }
   </style>
 </head>
 <body>
@@ -4181,18 +4138,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
 
-// ── Onboarding ────────────────────────────────────────
-function showOnboarding() {
-  const ob = document.getElementById('onboarding');
-  if (ob) {
-    ob.style.display = 'flex';
-    ob.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-// Onboarding disabled - user already knows the app
-const ob = document.getElementById('onboarding');
-if (ob) ob.remove();
+// Onboarding removed
 </script>
 </body>
 </html>
