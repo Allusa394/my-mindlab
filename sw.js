@@ -1,13 +1,19 @@
-const CACHE = 'mindlab-v53';
+const CACHE = 'mindlab-v54';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.map(k => caches.delete(k)))
-  ));
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.map(k => caches.delete(k))))
+      .then(() => self.clients.matchAll({ type: 'window' }))
+      .then(clients => {
+        // Force reload all open tabs to get fresh HTML
+        clients.forEach(client => client.navigate(client.url));
+      })
+  );
   self.clients.claim();
 });
 
